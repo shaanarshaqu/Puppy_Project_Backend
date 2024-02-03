@@ -44,10 +44,10 @@ namespace Puppy_Project.Services.Category
             }
         }
 
-        public bool DeleteCategory(int id)
+        /*public bool DeleteCategory(int id)
         {
 
             _puppyDb.CategoryTB.Remove();
-        }
+        }*/
     }
 }
