@@ -1,4 +1,6 @@
-﻿namespace Puppy_Project.Depandancies
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Puppy_Project.Depandancies
 {
     public class UserDTO
     {
@@ -7,6 +9,7 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public string Place { get; set; }
-        public int Phone { get; set; }
+        public string Phone { get; set; }
+        public string Role { get; set; }
     }
 }
