@@ -4,5 +4,6 @@
     {
         public int Id { get; set; }
         public string Ctg { get; set; }
+        public List<ProductDTO> Products { get; set; }
     }
 }

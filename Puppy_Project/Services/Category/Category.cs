@@ -44,10 +44,22 @@ namespace Puppy_Project.Services.Category
             }
         }
 
-        /*public bool DeleteCategory(int id)
+        public bool DeleteCategory(int id)
         {
-
-            _puppyDb.CategoryTB.Remove();
-        }*/
+            try
+            {
+                var ctg_to_delete = _puppyDb.CategoryTB.FirstOrDefault(x => x.Id == id);
+                if (ctg_to_delete == null) 
+                {
+                    return false;
+                }
+                _puppyDb.CategoryTB.Remove(ctg_to_delete);
+                _puppyDb.SaveChanges();
+                return true;
+            } catch(Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

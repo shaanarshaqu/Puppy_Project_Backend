@@ -7,5 +7,6 @@ namespace Puppy_Project.Services.Category
     {
         bool AddCategory(AddCategoryDTO ctg);
         List<CategoryDTO> DisplayCategories();
+        bool DeleteCategory(int id);
     }
 }

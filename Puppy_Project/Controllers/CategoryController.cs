@@ -22,6 +22,7 @@ namespace Puppy_Project.Controllers
         }
 
 
+
         [HttpPost("AddNewCategory")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -42,5 +43,23 @@ namespace Puppy_Project.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult DeleteCategory(int id)
+        {
+            try
+            {
+                bool isDeleted = _category.DeleteCategory(id);
+                return isDeleted ? Ok(isDeleted) : BadRequest(isDeleted);
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }

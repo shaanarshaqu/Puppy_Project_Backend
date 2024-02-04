@@ -14,6 +14,7 @@ namespace Puppy_Project.Dbcontext
 
         public DbSet<UserDTO> UsersTb { get; set; }
         public DbSet<CategoryDTO> CategoryTB { get; set; }
+        public DbSet<ProductDTO> ProductsTb { get; set; }
 
 
 
@@ -23,6 +24,13 @@ namespace Puppy_Project.Dbcontext
             modelBuilder.Entity<UserDTO>()
                 .Property(u=>u.Role)
                 .HasDefaultValue("user");
+            modelBuilder.Entity<ProductDTO>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.Category_id);
+            modelBuilder.Entity<ProductDTO>()
+                .Property(p => p.Qty)
+                .HasDefaultValue(1);
         }
 
 
