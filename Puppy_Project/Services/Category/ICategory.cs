@@ -6,7 +6,7 @@ namespace Puppy_Project.Services.Category
     public interface ICategory
     {
         bool AddCategory(AddCategoryDTO ctg);
-        List<CategoryDTO> DisplayCategories();
+        List<outCategoryDTO> DisplayCategories();
         bool DeleteCategory(int id);
     }
 }

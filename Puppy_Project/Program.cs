@@ -5,6 +5,7 @@ using Puppy_Project.Dbcontext;
 using Puppy_Project.Interfaces;
 using Puppy_Project.Models;
 using Puppy_Project.Services.Category;
+using Puppy_Project.Services.Products;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddAutoMapper(typeof(AutoMaper));
 builder.Services.AddSingleton<PuppyDb>();
 builder.Services.AddSingleton<IUsers,Users>();
 builder.Services.AddSingleton<ICategory,Category>();
+builder.Services.AddSingleton<IProducts,Products>();
+
 builder.Services.AddControllers();
 
 

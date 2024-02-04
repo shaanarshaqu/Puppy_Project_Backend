@@ -17,9 +17,10 @@ namespace Puppy_Project.Services.Category
 
 
 
-        public List<CategoryDTO> DisplayCategories()
+        public List<outCategoryDTO> DisplayCategories()
         {
-            return _puppyDb.CategoryTB.ToList();
+            var list = _mapper.Map<List<outCategoryDTO>>(_puppyDb.CategoryTB.ToList());
+            return list;
         }
 
 

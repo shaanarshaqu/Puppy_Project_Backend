@@ -1,20 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Puppy_Project.Models.Product
+﻿namespace Puppy_Project.Models.Product
 {
-    public class AddProductDTO
+    public class outProductDTO
     {
-        [Required]
+        public int Id { get; set; }
         public string Type { get; set; }
-        [Required]
         public string Img { get; set; }
-        [Required]
         public string Name { get; set; }
         public string Detail { get; set; }
         public string About { get; set; }
-        [Required]
         public int Price { get; set; }
-        [Required]
+        public int Qty { get; set; }
         public int Category_id { get; set; }
     }
 }

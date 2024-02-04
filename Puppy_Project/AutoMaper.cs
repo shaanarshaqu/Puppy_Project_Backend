@@ -4,6 +4,7 @@ using Puppy_Project.InputDTOs;
 using Puppy_Project.Models;
 using Puppy_Project.Models.Category;
 using Puppy_Project.Models.Input_OutputDTOs;
+using Puppy_Project.Models.Product;
 
 namespace Puppy_Project
 {
@@ -16,7 +17,10 @@ namespace Puppy_Project
             CreateMap<outUserDTO,inputUserDTO>().ReverseMap();
             CreateMap<UserDTO, RegisterDTO>().ReverseMap();
             CreateMap<CategoryDTO,AddCategoryDTO>().ReverseMap();
-            
+            CreateMap<outCategoryDTO,CategoryDTO>().ReverseMap();
+            CreateMap<ProductDTO,AddProductDTO>().ReverseMap();
+            CreateMap<outProductDTO, ProductDTO>().ReverseMap();
+
         }
     }
 }
