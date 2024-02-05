@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Puppy_Project.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Puppy_Project.Depandancies
 {
@@ -11,5 +12,6 @@ namespace Puppy_Project.Depandancies
         public string Place { get; set; }
         public string Phone { get; set; }
         public string Role { get; set; }
+        public CartDTO cartuser { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Puppy_Project.Dbcontext;
 
@@ -10,9 +11,11 @@ using Puppy_Project.Dbcontext;
 namespace Puppy_Project.Migrations
 {
     [DbContext(typeof(PuppyDb))]
-    partial class PuppyDbModelSnapshot : ModelSnapshot
+    [Migration("20240205061036_Initial6")]
+    partial class Initial6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,29 +80,6 @@ namespace Puppy_Project.Migrations
                         .IsUnique();
 
                     b.ToTable("CartTb");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.CartItemDTO", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Cart_id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Product_Id")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Cart_id");
-
-                    b.HasIndex("Product_Id");
-
-                    b.ToTable("CartItemTb");
                 });
 
             modelBuilder.Entity("Puppy_Project.Models.CategoryDTO", b =>
@@ -176,25 +156,6 @@ namespace Puppy_Project.Migrations
                     b.Navigation("userid");
                 });
 
-            modelBuilder.Entity("Puppy_Project.Models.CartItemDTO", b =>
-                {
-                    b.HasOne("Puppy_Project.Models.CartDTO", "cart")
-                        .WithMany("cartItemDTOs")
-                        .HasForeignKey("Cart_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Puppy_Project.Models.ProductDTO", "product")
-                        .WithMany("cartItems")
-                        .HasForeignKey("Product_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("cart");
-
-                    b.Navigation("product");
-                });
-
             modelBuilder.Entity("Puppy_Project.Models.ProductDTO", b =>
                 {
                     b.HasOne("Puppy_Project.Models.CategoryDTO", "Category")
@@ -212,19 +173,9 @@ namespace Puppy_Project.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Puppy_Project.Models.CartDTO", b =>
-                {
-                    b.Navigation("cartItemDTOs");
-                });
-
             modelBuilder.Entity("Puppy_Project.Models.CategoryDTO", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.ProductDTO", b =>
-                {
-                    b.Navigation("cartItems");
                 });
 #pragma warning restore 612, 618
         }

@@ -66,8 +66,25 @@ namespace Puppy_Project.Services.Products
             }catch( Exception ex)
             {
                 return false;
-            }
-            
+            }   
+        }
+
+        public bool DeleteProduct(int id)
+        {
+            try
+            {
+                var isItemExist = _puppyDb.ProductsTb.FirstOrDefault(p => p.Id == id);
+                if (isItemExist == null)
+                {
+                    return false;
+                }
+                _puppyDb.ProductsTb.Remove(isItemExist);
+                _puppyDb.SaveChanges();
+                return true;
+            }catch(Exception ex)
+            {
+                return false;
+            } 
         }
     }
 }

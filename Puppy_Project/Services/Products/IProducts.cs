@@ -8,5 +8,6 @@ namespace Puppy_Project.Services.Products
         List<outProductDTO> GetProducts();
         bool AddProduct(AddProductDTO product);
         bool UpdateProduct(int id, AddProductDTO product);
+        bool DeleteProduct(int id);
     }
 }

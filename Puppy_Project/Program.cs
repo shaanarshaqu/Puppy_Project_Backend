@@ -4,6 +4,7 @@ using Puppy_Project;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Interfaces;
 using Puppy_Project.Models;
+using Puppy_Project.Services.Cart;
 using Puppy_Project.Services.Category;
 using Puppy_Project.Services.Products;
 using System.Text;
@@ -22,6 +23,7 @@ builder.Services.AddSingleton<PuppyDb>();
 builder.Services.AddSingleton<IUsers,Users>();
 builder.Services.AddSingleton<ICategory,Category>();
 builder.Services.AddSingleton<IProducts,Products>();
+builder.Services.AddSingleton<ICart,Cart>();
 
 builder.Services.AddControllers();
 
