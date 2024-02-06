@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Models;
 using Puppy_Project.Models.Product;
@@ -21,13 +22,24 @@ namespace Puppy_Project.Services.Products
         {
             try
             {
-                var list = _mapper.Map<List<outProductDTO>>(_puppyDb.ProductsTb.ToList());
-                return list;
+                var tmpProductlist = _puppyDb.ProductsTb.Include(cg=>cg.Category).ToList();
+                var productlist = tmpProductlist.Select(cg => new outProductDTO
+                {
+                    Id = cg.Id,
+                    Type = cg.Type,
+                    Img = cg.Img,
+                    Name = cg.Name ,
+                    Detail = cg.Detail,
+                    About = cg.About,
+                    Price = cg.Price,
+                    Qty = cg.Qty,
+                    Ctg = cg.Category.Ctg
+                }).ToList();
+                return productlist;
             }catch(Exception ex)
             {
                 return null;
-            }
-            
+            }   
         }
 
         public bool AddProduct(AddProductDTO product)
@@ -73,7 +85,7 @@ namespace Puppy_Project.Services.Products
         {
             try
             {
-                var isItemExist = _puppyDb.ProductsTb.FirstOrDefault(p => p.Id == id);
+                var isItemExist = _puppyDb.ProductsTb.SingleOrDefault(p => p.Id == id);
                 if (isItemExist == null)
                 {
                     return false;

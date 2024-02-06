@@ -18,10 +18,26 @@ namespace Puppy_Project.Services.Cart
 
         public List<outCartDTO> ListCartofUsers(int id)
         {
-            var temp = _puppyDb.CartItemTb.Include(c => c.Cart_id)
-                .Include(c => c.product);
-            var list = _mapper.Map<List<outCartDTO>>(_puppyDb.CartTb.ToList());
-            return list;
+            var temp = _puppyDb.CartTb
+                .Include(c=>c.cartItemDTOs)
+                    .ThenInclude(ci=>ci.product).Where(c => c.UserId == id).ToList();
+            var cartItems = temp.Select(t => 
+               new outCartDTO
+               {
+                   Id = t.cartItemDTOs.First().Id,
+                   Type = t.cartItemDTOs.First().product.Type,
+                   Img = t.cartItemDTOs.First().product.Img,
+                   Name = t.cartItemDTOs.First().product.Name,
+                   Detail = t.cartItemDTOs.First().product.Detail,
+                   About = t.cartItemDTOs.First().product.About,
+                   Price = t.cartItemDTOs.First().product.Price,
+                   Qty=t.cartItemDTOs.First().product.Qty,
+                   Category = t.cartItemDTOs.First().product.Category.Ctg
+               }
+            ).ToList();
+
+            /*var list = _mapper.Map<List<outCartDTO>>(_puppyDb.CartTb.ToList());*/
+            return cartItems;
         }
 
         public bool CreateUserCart(AddCartDTO user)

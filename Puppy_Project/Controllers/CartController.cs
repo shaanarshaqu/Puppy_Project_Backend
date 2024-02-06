@@ -18,22 +18,22 @@ namespace Puppy_Project.Controllers
             _puppyDb = puppyDb;
         }
 
-        [HttpGet]
-        public IActionResult GetProducts()
+        [HttpGet("{id:int}")]
+        public IActionResult GetProducts(int id)
         {
-            return Ok(_cart.ListCartofUsers());
+            return Ok(_cart.ListCartofUsers(id));
         }
 
-       /* [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        public IActionResult AddUserCart([FromBody] AddCartDTO cart)
-        {
-            bool AlreadyUserHaveCart = _puppyDb.CartTb.Any(c => c.UserId == cart.UserId);
-            if (AlreadyUserHaveCart)
-            {
-                return BadRequest("User Already");
-            }
-        }*/
+        /* [HttpPost]
+         [ProducesResponseType(StatusCodes.Status201Created)]
+         public IActionResult AddUserCart([FromBody] AddCartDTO cart)
+         {
+             bool AlreadyUserHaveCart = _puppyDb.CartTb.Any(c => c.UserId == cart.UserId);
+             if (AlreadyUserHaveCart)
+             {
+                 return BadRequest("User Already");
+             }
+         }*/
 
     }
 }
