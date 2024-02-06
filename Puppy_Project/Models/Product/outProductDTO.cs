@@ -9,7 +9,6 @@
         public string Detail { get; set; }
         public string About { get; set; }
         public int Price { get; set; }
-        public int Qty { get; set; }
         public string Ctg { get; set; }
     }
 }

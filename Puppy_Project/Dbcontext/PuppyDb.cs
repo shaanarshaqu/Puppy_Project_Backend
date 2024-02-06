@@ -30,9 +30,6 @@ namespace Puppy_Project.Dbcontext
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.Category_id);
-            modelBuilder.Entity<ProductDTO>()
-                .Property(p => p.Qty)
-                .HasDefaultValue(1);
             modelBuilder.Entity<CartDTO>()
                 .HasOne(c => c.userid)
                 .WithOne(u => u.cartuser)
@@ -45,6 +42,9 @@ namespace Puppy_Project.Dbcontext
                 .HasOne(ci => ci.product)
                 .WithMany(p => p.cartItems)
                 .HasForeignKey(ci => ci.Product_Id);
+            modelBuilder.Entity<CartItemDTO>()
+                .Property(ci=>ci.Qty)
+                .HasDefaultValue(1);
         }
 
 

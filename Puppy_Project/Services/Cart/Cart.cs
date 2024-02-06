@@ -18,37 +18,67 @@ namespace Puppy_Project.Services.Cart
 
         public List<outCartDTO> ListCartofUsers(int id)
         {
-            var temp = _puppyDb.CartTb
-                .Include(c=>c.cartItemDTOs)
-                    .ThenInclude(ci=>ci.product).Where(c => c.UserId == id).ToList();
-            var cartItems = temp.Select(t => 
-               new outCartDTO
-               {
-                   Id = t.cartItemDTOs.First().Id,
-                   Type = t.cartItemDTOs.First().product.Type,
-                   Img = t.cartItemDTOs.First().product.Img,
-                   Name = t.cartItemDTOs.First().product.Name,
-                   Detail = t.cartItemDTOs.First().product.Detail,
-                   About = t.cartItemDTOs.First().product.About,
-                   Price = t.cartItemDTOs.First().product.Price,
-                   Qty=t.cartItemDTOs.First().product.Qty,
-                   Category = t.cartItemDTOs.First().product.Category.Ctg
-               }
+            var isUserExist = _puppyDb.UsersTb.Find(id);
+            if (isUserExist == null)
+            {
+                return null;
+            }
+            var temp = _puppyDb.UsersTb
+                .Include(c => c.cartuser)
+                    .ThenInclude(ci => ci.cartItemDTOs)
+                        .ThenInclude(p => p.product)
+                            .ThenInclude(p=>p.Category)
+                .FirstOrDefault(c => c.Id == id);
+            if(temp == null)
+            {
+                return null;
+            }
+            var cartItems = temp.cartuser.cartItemDTOs.Select(t =>
+                new outCartDTO
+                {
+                    Id = t.Id,
+                    Type = t.product.Type,
+                    Img = t.product.Img,
+                    Name = t.product.Name,
+                    Detail = t.product.Detail,
+                    About = t.product.About,
+                    Price = t.product.Price,
+                    Qty = t.Qty,
+                    Category = t.product.Category.Ctg
+                }
             ).ToList();
-
-            /*var list = _mapper.Map<List<outCartDTO>>(_puppyDb.CartTb.ToList());*/
             return cartItems;
         }
 
-        public bool CreateUserCart(AddCartDTO user)
+        public bool CreateUserCart(AddCartDTO cartitem)
         {
-            bool isUserValid = _puppyDb.UsersTb.Any(u => u.Id == user.UserId);
-            if (!isUserValid)
+            bool isUserValid = _puppyDb.UsersTb.Any(u => u.Id == cartitem.UserId);
+            bool isProductIdValid = _puppyDb.ProductsTb.Any(p => p.Id == cartitem.Product_Id);
+            if (!isUserValid || !isProductIdValid)
             {
                 return false;
             }
-            var cartDto = _mapper.Map<CartDTO>(user);
-            _puppyDb.CartTb.Add(cartDto);
+            var isUserHasCart = _puppyDb.CartTb.SingleOrDefault(c => c.UserId == cartitem.UserId);
+            if (isUserHasCart==null)
+            {
+                _puppyDb.CartTb.Add(new CartDTO { UserId = cartitem.UserId, cartItemDTOs = new List<CartItemDTO>()});
+                _puppyDb.SaveChanges();
+                isUserHasCart= _puppyDb.CartTb.SingleOrDefault(c => c.UserId == cartitem.UserId);
+            }
+            var item = _puppyDb.CartItemTb.SingleOrDefault(ci => ci.Product_Id == cartitem.Product_Id && ci.Cart_id == isUserHasCart.Id);
+            if (item==null)
+            {
+                _puppyDb.CartItemTb.Add(
+                new CartItemDTO
+                {
+                    Cart_id = isUserHasCart.Id,
+                    Product_Id = cartitem.Product_Id
+                });
+                _puppyDb.SaveChanges();
+                return isUserValid;
+            }
+            item.Qty++;
+            _puppyDb.SaveChanges();
             return isUserValid;
         }
     }

@@ -7,5 +7,6 @@
         public CartDTO cart { get; set; }
         public int Product_Id { get; set; }
         public ProductDTO product { get; set; }
+        public int Qty { get; set; }
     }
 }

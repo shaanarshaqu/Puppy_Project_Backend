@@ -11,7 +11,6 @@ namespace Puppy_Project.Models
         public string Detail { get; set; }
         public string About { get; set; }
         public int Price { get; set; }
-        public int Qty { get; set; }
         public int Category_id { get; set; }
         public CategoryDTO Category { get; set; }
         public List<CartItemDTO> cartItems { get; set; }

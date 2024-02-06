@@ -32,7 +32,6 @@ namespace Puppy_Project.Services.Products
                     Detail = cg.Detail,
                     About = cg.About,
                     Price = cg.Price,
-                    Qty = cg.Qty,
                     Ctg = cg.Category.Ctg
                 }).ToList();
                 return productlist;

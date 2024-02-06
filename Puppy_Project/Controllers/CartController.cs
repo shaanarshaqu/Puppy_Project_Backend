@@ -11,29 +11,29 @@ namespace Puppy_Project.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICart _cart;
-        private readonly PuppyDb _puppyDb;
         public CartController(ICart cart, PuppyDb puppyDb) 
         {
             _cart= cart;
-            _puppyDb = puppyDb;
         }
 
         [HttpGet("{id:int}")]
-        public IActionResult GetProducts(int id)
+        public IActionResult GetCartDetails(int id)
         {
-            return Ok(_cart.ListCartofUsers(id));
+            var usercart = _cart.ListCartofUsers(id);
+            return usercart==null ? BadRequest("User Has no cart") : Ok(usercart);
         }
 
-        /* [HttpPost]
-         [ProducesResponseType(StatusCodes.Status201Created)]
-         public IActionResult AddUserCart([FromBody] AddCartDTO cart)
-         {
-             bool AlreadyUserHaveCart = _puppyDb.CartTb.Any(c => c.UserId == cart.UserId);
-             if (AlreadyUserHaveCart)
-             {
-                 return BadRequest("User Already");
-             }
-         }*/
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult AddUserCart([FromBody] AddCartDTO cartitem)
+        {
+            bool isAdded = _cart.CreateUserCart(cartitem) ;
+            if (!isAdded)
+            {
+                return BadRequest();
+            }
+            return Ok(isAdded);
+        }
 
     }
 }
