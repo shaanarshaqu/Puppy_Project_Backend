@@ -35,5 +35,26 @@ namespace Puppy_Project.Controllers
             return Ok(isAdded);
         }
 
+        [HttpPut("increment/{id:int}")]
+        public IActionResult IncrementCartitem(int id)
+        {
+            bool incremented = _cart.UserCartQtyIncrement(id);
+            return incremented ? Ok("success") : BadRequest();
+        }
+
+        [HttpPut("decrement/{id:int}")]
+        public IActionResult DecrementCartitem(int id)
+        {
+            bool decremented = _cart.UserCartQtyDecrement(id);
+            return decremented ? Ok("success") : BadRequest();
+        }
+
+        [HttpDelete("{id:int}")]
+        public IActionResult RemoveFromCart(int id)
+        {
+            bool isRemoved = _cart.RemoveFromUserCart(id);
+            return isRemoved ? Ok("success") : NotFound();
+        }
+
     }
 }

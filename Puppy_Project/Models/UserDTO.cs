@@ -13,5 +13,6 @@ namespace Puppy_Project.Depandancies
         public string Phone { get; set; }
         public string Role { get; set; }
         public CartDTO cartuser { get; set; }
+        public OrderDTO userorder { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace Puppy_Project.Models
         public int Category_id { get; set; }
         public CategoryDTO Category { get; set; }
         public List<CartItemDTO> cartItems { get; set; }
+        public List<OrderItemDTO> orderItems { get; set; }
 
     }
 }

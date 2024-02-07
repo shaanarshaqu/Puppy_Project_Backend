@@ -5,6 +5,7 @@ using Puppy_Project.Models;
 using Puppy_Project.Models.Cart;
 using Puppy_Project.Models.Category;
 using Puppy_Project.Models.Input_OutputDTOs;
+using Puppy_Project.Models.Order;
 using Puppy_Project.Models.Product;
 
 namespace Puppy_Project
@@ -22,8 +23,13 @@ namespace Puppy_Project
             CreateMap<ProductDTO,AddProductDTO>().ReverseMap();
             CreateMap<outProductDTO, ProductDTO>().ReverseMap();
             CreateMap<CartDTO, AddCartDTO>().ReverseMap();
-
+            CreateMap<outOrderDTO,OrderDTO>().ReverseMap();
+            CreateMap<OrderDTO, inputOrderDTO>().ReverseMap();
+            CreateMap<OrderItemDTO, inputOrderDTO>().ReverseMap();
 
         }
+
+
     }
+    
 }

@@ -21,7 +21,7 @@ namespace Puppy_Project.Services.Cart
             var isUserExist = _puppyDb.UsersTb.Find(id);
             if (isUserExist == null)
             {
-                return null;
+                return new List<outCartDTO>();
             }
             var temp = _puppyDb.UsersTb
                 .Include(c => c.cartuser)
@@ -29,14 +29,15 @@ namespace Puppy_Project.Services.Cart
                         .ThenInclude(p => p.product)
                             .ThenInclude(p=>p.Category)
                 .FirstOrDefault(c => c.Id == id);
-            if(temp == null)
+            if(temp.cartuser == null)
             {
-                return null;
+                return new List<outCartDTO>();
             }
             var cartItems = temp.cartuser.cartItemDTOs.Select(t =>
                 new outCartDTO
                 {
                     Id = t.Id,
+                    Product_id=t.Product_Id,
                     Type = t.product.Type,
                     Img = t.product.Img,
                     Name = t.product.Name,
@@ -44,10 +45,15 @@ namespace Puppy_Project.Services.Cart
                     About = t.product.About,
                     Price = t.product.Price,
                     Qty = t.Qty,
+                    Total=(t.Qty * t.product.Price),
                     Category = t.product.Category.Ctg
                 }
-            ).ToList();
-            return cartItems;
+            );
+            if (cartItems == null)
+            {
+                return new List<outCartDTO>();
+            }
+            return cartItems.ToList();
         }
 
         public bool CreateUserCart(AddCartDTO cartitem)
@@ -78,8 +84,52 @@ namespace Puppy_Project.Services.Cart
                 return isUserValid;
             }
             item.Qty++;
+            item.Total = item.Qty * item.product.Price;
             _puppyDb.SaveChanges();
             return isUserValid;
+        }
+
+        public bool RemoveFromUserCart(int id)
+        {
+            var item = _puppyDb.CartItemTb.Find(id);
+            if (item == null)
+            {
+                return false;
+            }
+            _puppyDb.CartItemTb.Remove(item);
+            _puppyDb.SaveChanges();
+            return true;
+        }
+
+        public bool UserCartQtyIncrement(int id)
+        {
+            var itemInCart = _puppyDb.CartItemTb.Find(id);
+            if (itemInCart == null)
+            {
+                return false;
+            }
+            itemInCart.Qty++;
+            _puppyDb.SaveChanges();
+            return true;
+        }
+
+        public bool UserCartQtyDecrement(int id)
+        {
+            var itemInCart = _puppyDb.CartItemTb.Find(id);
+            if (itemInCart == null)
+            {
+                return false;
+            }
+            if (itemInCart.Qty == 1)
+            {
+                return false;
+            }
+                if (itemInCart.Qty > 1)
+            {
+                itemInCart.Qty--;
+                _puppyDb.SaveChanges();
+            }
+            return true;
         }
     }
 }

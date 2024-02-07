@@ -6,5 +6,8 @@ namespace Puppy_Project.Services.Cart
     {
         List<outCartDTO> ListCartofUsers(int id);
         bool CreateUserCart(AddCartDTO user);
+        bool RemoveFromUserCart(int id);
+        bool UserCartQtyIncrement(int id);
+        bool UserCartQtyDecrement(int id);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Puppy_Project.Secure
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace Puppy_Project.Secure
 {
     public class PasswordSecure
     {
@@ -8,7 +10,7 @@
             string salt = BCrypt.Net.BCrypt.GenerateSalt();
 
             // Hash the password with the generated salt
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt); ;
 
             return hashedPassword;
         }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Puppy_Project.Dbcontext;
 
@@ -10,9 +11,11 @@ using Puppy_Project.Dbcontext;
 namespace Puppy_Project.Migrations
 {
     [DbContext(typeof(PuppyDb))]
-    partial class PuppyDbModelSnapshot : ModelSnapshot
+    [Migration("20240207042921_order")]
+    partial class order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,44 +138,22 @@ namespace Puppy_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("User_Id")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("User_Id")
-                        .IsUnique();
-
-                    b.ToTable("OrderTb");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.OrderItemDTO", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Order_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Product_Id")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("Qty")
                         .HasColumnType("int");
 
-                    b.Property<int>("Total")
+                    b.Property<int>("User_Id")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Order_Id");
+                    b.HasIndex("ProductId");
 
-                    b.HasIndex("Product_Id");
+                    b.HasIndex("User_Id");
 
-                    b.ToTable("OrderItemTb");
+                    b.ToTable("OrderTb");
                 });
 
             modelBuilder.Entity("Puppy_Project.Models.ProductDTO", b =>
@@ -248,32 +229,21 @@ namespace Puppy_Project.Migrations
 
             modelBuilder.Entity("Puppy_Project.Models.OrderDTO", b =>
                 {
-                    b.HasOne("Puppy_Project.Depandancies.UserDTO", "user")
-                        .WithOne("userorder")
-                        .HasForeignKey("Puppy_Project.Models.OrderDTO", "User_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("user");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.OrderItemDTO", b =>
-                {
-                    b.HasOne("Puppy_Project.Models.OrderDTO", "order")
-                        .WithMany("orderItems")
-                        .HasForeignKey("Order_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Puppy_Project.Models.ProductDTO", "product")
                         .WithMany("orderItems")
-                        .HasForeignKey("Product_Id")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("order");
+                    b.HasOne("Puppy_Project.Depandancies.UserDTO", "user")
+                        .WithMany("orders")
+                        .HasForeignKey("User_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("product");
+
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("Puppy_Project.Models.ProductDTO", b =>
@@ -292,8 +262,7 @@ namespace Puppy_Project.Migrations
                     b.Navigation("cartuser")
                         .IsRequired();
 
-                    b.Navigation("userorder")
-                        .IsRequired();
+                    b.Navigation("orders");
                 });
 
             modelBuilder.Entity("Puppy_Project.Models.CartDTO", b =>
@@ -304,11 +273,6 @@ namespace Puppy_Project.Migrations
             modelBuilder.Entity("Puppy_Project.Models.CategoryDTO", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.OrderDTO", b =>
-                {
-                    b.Navigation("orderItems");
                 });
 
             modelBuilder.Entity("Puppy_Project.Models.ProductDTO", b =>

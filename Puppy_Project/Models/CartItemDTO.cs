@@ -8,5 +8,6 @@
         public int Product_Id { get; set; }
         public ProductDTO product { get; set; }
         public int Qty { get; set; }
+        public int Total {  get; set; }
     }
 }

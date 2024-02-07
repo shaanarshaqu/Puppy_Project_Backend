@@ -17,6 +17,8 @@ namespace Puppy_Project.Dbcontext
         public DbSet<ProductDTO> ProductsTb { get; set; }
         public DbSet<CartDTO> CartTb { get; set; }
         public DbSet<CartItemDTO> CartItemTb { get; set; }
+        public DbSet<OrderDTO> OrderTb { get; set; }
+        public DbSet<OrderItemDTO> OrderItemTb { get; set; }
 
 
 
@@ -45,6 +47,19 @@ namespace Puppy_Project.Dbcontext
             modelBuilder.Entity<CartItemDTO>()
                 .Property(ci=>ci.Qty)
                 .HasDefaultValue(1);
+            modelBuilder.Entity<OrderDTO>()
+                .HasOne(o => o.user)
+                .WithOne(u => u.userorder)
+                .HasForeignKey<OrderDTO>(o => o.User_Id);
+            modelBuilder.Entity<OrderItemDTO>()
+                .HasOne(oi => oi.order)
+                .WithMany(o => o.orderItems)
+                .HasForeignKey(oi => oi.Order_Id);
+            modelBuilder.Entity<OrderItemDTO>()
+                .HasOne(oi => oi.product)
+                .WithMany(p => p.orderItems)
+                .HasForeignKey(oi => oi.Product_Id);
+                
         }
 
 
