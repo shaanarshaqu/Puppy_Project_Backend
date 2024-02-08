@@ -2,11 +2,12 @@
 using Puppy_Project.Depandancies;
 using Puppy_Project.InputDTOs;
 using Puppy_Project.Models;
-using Puppy_Project.Models.Cart;
-using Puppy_Project.Models.Category;
+using Puppy_Project.Models.CartDTO;
+using Puppy_Project.Models.CategoryDTO;
 using Puppy_Project.Models.Input_OutputDTOs;
-using Puppy_Project.Models.Order;
-using Puppy_Project.Models.Product;
+using Puppy_Project.Models.OrderDTO;
+using Puppy_Project.Models.ProductDTO;
+
 
 namespace Puppy_Project
 {
@@ -14,18 +15,18 @@ namespace Puppy_Project
     {
         public AutoMaper() 
         {
-            CreateMap<UserDTO, inputUserDTO>().ReverseMap();
-            CreateMap<outUserDTO,UserDTO>().ReverseMap();
+            CreateMap<User, inputUserDTO>().ReverseMap();
+            CreateMap<outUserDTO,User>().ReverseMap();
             CreateMap<outUserDTO,inputUserDTO>().ReverseMap();
-            CreateMap<UserDTO, RegisterDTO>().ReverseMap();
-            CreateMap<CategoryDTO,AddCategoryDTO>().ReverseMap();
-            CreateMap<outCategoryDTO,CategoryDTO>().ReverseMap();
-            CreateMap<ProductDTO,AddProductDTO>().ReverseMap();
-            CreateMap<outProductDTO, ProductDTO>().ReverseMap();
-            CreateMap<CartDTO, AddCartDTO>().ReverseMap();
-            CreateMap<outOrderDTO,OrderDTO>().ReverseMap();
-            CreateMap<OrderDTO, inputOrderDTO>().ReverseMap();
-            CreateMap<OrderItemDTO, inputOrderDTO>().ReverseMap();
+            CreateMap<User, RegisterDTO>().ReverseMap();
+            CreateMap<Category,AddCategoryDTO>().ReverseMap();
+            CreateMap<outCategoryDTO,Category>().ReverseMap();
+            CreateMap<Product,AddProductDTO>().ReverseMap();
+            CreateMap<outProductDTO, Product>().ReverseMap();
+            CreateMap<Cart, AddCartDTO>().ReverseMap();
+            CreateMap<outOrderDTO,Order>().ReverseMap();
+            CreateMap<Order, inputOrderDTO>().ReverseMap();
+            CreateMap<OrderItem, inputOrderDTO>().ReverseMap();
 
         }
 

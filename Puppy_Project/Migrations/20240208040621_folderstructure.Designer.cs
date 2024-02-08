@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Puppy_Project.Dbcontext;
 
@@ -10,9 +11,11 @@ using Puppy_Project.Dbcontext;
 namespace Puppy_Project.Migrations
 {
     [DbContext(typeof(PuppyDb))]
-    partial class PuppyDbModelSnapshot : ModelSnapshot
+    [Migration("20240208040621_folderstructure")]
+    partial class folderstructure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,48 +219,6 @@ namespace Puppy_Project.Migrations
                     b.ToTable("ProductsTb");
                 });
 
-            modelBuilder.Entity("Puppy_Project.Models.WishList", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("WishListTb");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.WishListItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Product_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WishList_Id")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Product_Id");
-
-                    b.HasIndex("WishList_Id");
-
-                    b.ToTable("WishListItemTb");
-                });
-
             modelBuilder.Entity("Puppy_Project.Models.Cart", b =>
                 {
                     b.HasOne("Puppy_Project.Depandancies.User", "userid")
@@ -329,45 +290,12 @@ namespace Puppy_Project.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Puppy_Project.Models.WishList", b =>
-                {
-                    b.HasOne("Puppy_Project.Depandancies.User", "user")
-                        .WithOne("wishList")
-                        .HasForeignKey("Puppy_Project.Models.WishList", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("user");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.WishListItem", b =>
-                {
-                    b.HasOne("Puppy_Project.Models.Product", "product")
-                        .WithMany("wishListitems")
-                        .HasForeignKey("Product_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Puppy_Project.Models.WishList", "wishList")
-                        .WithMany("wishListItems")
-                        .HasForeignKey("WishList_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("product");
-
-                    b.Navigation("wishList");
-                });
-
             modelBuilder.Entity("Puppy_Project.Depandancies.User", b =>
                 {
                     b.Navigation("cartuser")
                         .IsRequired();
 
                     b.Navigation("userorder")
-                        .IsRequired();
-
-                    b.Navigation("wishList")
                         .IsRequired();
                 });
 
@@ -391,13 +319,6 @@ namespace Puppy_Project.Migrations
                     b.Navigation("cartItems");
 
                     b.Navigation("orderItems");
-
-                    b.Navigation("wishListitems");
-                });
-
-            modelBuilder.Entity("Puppy_Project.Models.WishList", b =>
-                {
-                    b.Navigation("wishListItems");
                 });
 #pragma warning restore 612, 618
         }

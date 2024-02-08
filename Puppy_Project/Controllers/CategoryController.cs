@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Puppy_Project.Models.Category;
-using Puppy_Project.Services.Category;
+using Puppy_Project.Models.CategoryDTO;
+using Puppy_Project.Services.Categorys;
 
 namespace Puppy_Project.Controllers
 {
@@ -9,8 +9,8 @@ namespace Puppy_Project.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategory _category;
-        public CategoryController(ICategory category) 
+        private readonly ICategoryService _category;
+        public CategoryController(ICategoryService category) 
         { 
             _category = category;
         }

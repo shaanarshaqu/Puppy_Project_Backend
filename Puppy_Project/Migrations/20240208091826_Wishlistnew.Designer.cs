@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Puppy_Project.Dbcontext;
 
@@ -10,9 +11,11 @@ using Puppy_Project.Dbcontext;
 namespace Puppy_Project.Migrations
 {
     [DbContext(typeof(PuppyDb))]
-    partial class PuppyDbModelSnapshot : ModelSnapshot
+    [Migration("20240208091826_Wishlistnew")]
+    partial class Wishlistnew
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

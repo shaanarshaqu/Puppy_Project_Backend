@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Dbcontext;
-using Puppy_Project.Models.Cart;
-using Puppy_Project.Services.Cart;
+using Puppy_Project.Models.CartDTO;
+using Puppy_Project.Services.Carts;
 
 namespace Puppy_Project.Controllers
 {
@@ -10,8 +10,8 @@ namespace Puppy_Project.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly ICart _cart;
-        public CartController(ICart cart, PuppyDb puppyDb) 
+        private readonly ICartService _cart;
+        public CartController(ICartService cart, PuppyDb puppyDb) 
         {
             _cart= cart;
         }

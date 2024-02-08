@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Puppy_Project.Models.Product;
+using Puppy_Project.Models.ProductDTO;
 using Puppy_Project.Services.Products;
 
 namespace Puppy_Project.Controllers
@@ -9,8 +9,8 @@ namespace Puppy_Project.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly IProducts _products;
-        public ProductsController(IProducts products)
+        private readonly IProductsService _products;
+        public ProductsController(IProductsService products)
         {
             _products = products;
         }

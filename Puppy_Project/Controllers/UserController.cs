@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Puppy_Project.Depandancies;
 using Puppy_Project.InputDTOs;
 using Puppy_Project.Interfaces;
 using Puppy_Project.Models;
@@ -16,9 +15,9 @@ namespace Puppy_Project.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUsers _users;
+        private readonly IUsersService _users;
         private readonly IConfiguration _configuration;
-        public UserController(IUsers users,IConfiguration configuration)
+        public UserController(IUsersService users,IConfiguration configuration)
         {
             _users=users;
             _configuration=configuration;
