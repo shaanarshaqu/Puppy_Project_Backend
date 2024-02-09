@@ -8,5 +8,6 @@
         public int Price {  get; set; }
         public int Total { get; set; }
         public int User_Id { get; set; }
+        public string Img { get; set;}
     }
 }

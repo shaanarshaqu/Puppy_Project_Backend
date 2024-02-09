@@ -11,9 +11,11 @@ namespace Puppy_Project.Services.Orders
     {
         private readonly PuppyDb _puppyDb;
         private readonly IMapper _mapper;
-        public OrderService(PuppyDb puppyDb)
+        private readonly IConfiguration _Configuration;
+        public OrderService(PuppyDb puppyDb, IConfiguration configuration)
         {
             _puppyDb = puppyDb;
+            _Configuration = configuration;
         }
 
         public List<outOrderDTO> ListUserOrder(int id)
@@ -28,6 +30,7 @@ namespace Puppy_Project.Services.Orders
                 Id=o.Id,
                 Product_Id = o.Product_Id,
                 Qty=o.Qty,
+                Img = $"{_Configuration["HostUrl:url"]}/Products/{o.product.Img}",
                 Price=o.Total/o.Qty,
                 Total=o.Total,
                 User_Id = user_order.User_Id

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Models.ProductDTO;
 using Puppy_Project.Services.Products;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Puppy_Project.Controllers
 {
@@ -39,11 +40,11 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddProduct([FromBody] AddProductDTO product)
+        public IActionResult AddProduct([FromForm] AddProductDTO product,IFormFile image)
         {
             try
             {
-                bool isAdded = _products.AddProduct(product);
+                bool isAdded = _products.AddProduct(product, image);
                 if(!isAdded) 
                 {
                     return BadRequest("Category_id is not valid");
@@ -60,11 +61,11 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult UpdateProducts(int id,[FromBody] AddProductDTO product)
+        public IActionResult UpdateProducts([FromForm] AddProductDTO product, int id,IFormFile image)
         {
             try
             {
-                bool isUpdated = _products.UpdateProduct(id, product);
+                bool isUpdated = _products.UpdateProduct(id, product, image);
                 if (!isUpdated)
                 {
                     return NotFound("item not found");

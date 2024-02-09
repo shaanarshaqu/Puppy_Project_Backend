@@ -4,10 +4,10 @@ namespace Puppy_Project.Services.Carts
 {
     public interface ICartService
     {
-        List<outCartDTO> ListCartofUsers(int id);
-        bool CreateUserCart(AddCartDTO user);
-        bool RemoveFromUserCart(int id);
-        bool UserCartQtyIncrement(int id);
-        bool UserCartQtyDecrement(int id);
+        Task<List<outCartDTO>> ListCartofUsers(int id);
+        Task<bool> CreateUserCart(AddCartDTO user);
+        Task<bool> RemoveFromUserCart(int id);
+        Task<bool> UserCartQtyIncrement(int id);
+        Task<bool> UserCartQtyDecrement(int id);
     }
 }

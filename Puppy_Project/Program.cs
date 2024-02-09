@@ -91,6 +91,7 @@ app.UseAuthorization();
 //---------React----------------------------------
 app.UseCors("ReactPolicy");
 //-----------------------------------------------
+app.UseStaticFiles();
 
 app.MapControllers();
 

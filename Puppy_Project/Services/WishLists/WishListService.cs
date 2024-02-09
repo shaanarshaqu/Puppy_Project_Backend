@@ -9,9 +9,11 @@ namespace Puppy_Project.Services.WishLists
     public class WishListService: IWishListService
     {
         private readonly PuppyDb _puppyDb;
-        public WishListService(PuppyDb puppyDb) 
+        private  readonly IConfiguration _configuration;
+        public WishListService(PuppyDb puppyDb, IConfiguration configuration) 
         {
             _puppyDb= puppyDb;
+            _configuration= configuration;
         }
 
 
@@ -37,7 +39,7 @@ namespace Puppy_Project.Services.WishLists
                         new outWishListDTO
                             {
                                 Id= wi.Id,
-                                Img = wi.product.Img,
+                                Img = $"{_configuration["HostUrl:url"]}/Products/{wi.product.Img}" ,
                                 Name= wi.product.Name,
                                 Detail= wi.product.Detail,
                                 Price= wi.product.Price,

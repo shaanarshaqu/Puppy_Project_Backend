@@ -17,17 +17,17 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public IActionResult GetCartDetails(int id)
+        public async Task<IActionResult> GetCartDetails(int id)
         {
-            var usercart = _cart.ListCartofUsers(id);
+            var usercart = await _cart.ListCartofUsers(id);
             return usercart==null ? BadRequest("User Has no cart") : Ok(usercart);
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult AddUserCart([FromBody] AddCartDTO cartitem)
+        public async Task<IActionResult> AddUserCart([FromBody] AddCartDTO cartitem)
         {
-            bool isAdded = _cart.CreateUserCart(cartitem) ;
+            bool isAdded = await _cart.CreateUserCart(cartitem) ;
             if (!isAdded)
             {
                 return BadRequest();
@@ -36,23 +36,23 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpPut("increment/{id:int}")]
-        public IActionResult IncrementCartitem(int id)
+        public async Task<IActionResult> IncrementCartitem(int id)
         {
-            bool incremented = _cart.UserCartQtyIncrement(id);
+            bool incremented = await _cart.UserCartQtyIncrement(id);
             return incremented ? Ok("success") : BadRequest();
         }
 
         [HttpPut("decrement/{id:int}")]
-        public IActionResult DecrementCartitem(int id)
+        public async Task<IActionResult> DecrementCartitem(int id)
         {
-            bool decremented = _cart.UserCartQtyDecrement(id);
+            bool decremented = await _cart.UserCartQtyDecrement(id);
             return decremented ? Ok("success") : BadRequest();
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult RemoveFromCart(int id)
+        public async Task<IActionResult> RemoveFromCart(int id)
         {
-            bool isRemoved = _cart.RemoveFromUserCart(id);
+            bool isRemoved = await _cart.RemoveFromUserCart(id);
             return isRemoved ? Ok("success") : NotFound();
         }
 

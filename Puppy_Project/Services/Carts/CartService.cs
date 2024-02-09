@@ -11,69 +11,82 @@ namespace Puppy_Project.Services.Carts
     {
         private readonly PuppyDb _puppyDb;
         private readonly IMapper _mapper;
-        public CartService(PuppyDb puppyDb,IMapper mapper) 
+        private readonly IConfiguration _configuration;
+        public CartService(PuppyDb puppyDb,IMapper mapper, IConfiguration configuration) 
         {
             _puppyDb= puppyDb;
             _mapper = mapper;
+            _configuration= configuration;
         }
 
-        public List<outCartDTO> ListCartofUsers(int id)
+        public async Task<List<outCartDTO>> ListCartofUsers(int id)
         {
-            var isUserExist = _puppyDb.UsersTb.Find(id);
+            var isUserExist = await _puppyDb.UsersTb.FindAsync(id);
+
             if (isUserExist == null)
             {
                 return new List<outCartDTO>();
             }
-            var temp = _puppyDb.UsersTb
+
+            var temp = await _puppyDb.UsersTb
                 .Include(c => c.cartuser)
                     .ThenInclude(ci => ci.cartItemDTOs)
                         .ThenInclude(p => p.product)
-                            .ThenInclude(p=>p.Category)
-                .FirstOrDefault(c => c.Id == id);
-            if(temp.cartuser == null)
+                            .ThenInclude(p => p.Category)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (temp.cartuser == null)
             {
                 return new List<outCartDTO>();
             }
+
             var cartItems = temp.cartuser.cartItemDTOs.Select(t =>
                 new outCartDTO
                 {
                     Id = t.Id,
-                    Product_id=t.Product_Id,
+                    Product_id = t.Product_Id,
                     Type = t.product.Type,
-                    Img = t.product.Img,
+                    Img = $"{_configuration["HostUrl:url"]}/Products/{t.product.Img}",
                     Name = t.product.Name,
                     Detail = t.product.Detail,
                     About = t.product.About,
                     Price = t.product.Price,
                     Qty = t.Qty,
-                    Total=(t.Qty * t.product.Price),
+                    Total = (t.Qty * t.product.Price),
                     Category = t.product.Category.Ctg
                 }
             );
+
             if (cartItems == null)
             {
                 return new List<outCartDTO>();
             }
+
             return cartItems.ToList();
         }
 
-        public bool CreateUserCart(AddCartDTO cartitem)
+        public async Task<bool> CreateUserCart(AddCartDTO cartitem)
         {
-            bool isUserValid = _puppyDb.UsersTb.Any(u => u.Id == cartitem.UserId);
-            bool isProductIdValid = _puppyDb.ProductsTb.Any(p => p.Id == cartitem.Product_Id);
+            bool isUserValid = await _puppyDb.UsersTb.AnyAsync(u => u.Id == cartitem.UserId);
+            bool isProductIdValid = await _puppyDb.ProductsTb.AnyAsync(p => p.Id == cartitem.Product_Id);
+
             if (!isUserValid || !isProductIdValid)
             {
                 return false;
             }
-            var isUserHasCart = _puppyDb.CartTb.SingleOrDefault(c => c.UserId == cartitem.UserId);
-            if (isUserHasCart==null)
+
+            var isUserHasCart = await _puppyDb.CartTb.SingleOrDefaultAsync(c => c.UserId == cartitem.UserId);
+
+            if (isUserHasCart == null)
             {
-                _puppyDb.CartTb.Add(new Cart { UserId = cartitem.UserId, cartItemDTOs = new List<CartItem>()});
-                _puppyDb.SaveChanges();
-                isUserHasCart= _puppyDb.CartTb.SingleOrDefault(c => c.UserId == cartitem.UserId);
+                _puppyDb.CartTb.Add(new Cart { UserId = cartitem.UserId, cartItemDTOs = new List<CartItem>() });
+                await _puppyDb.SaveChangesAsync();
+                isUserHasCart = await _puppyDb.CartTb.SingleOrDefaultAsync(c => c.UserId == cartitem.UserId);
             }
-            var item = _puppyDb.CartItemTb.SingleOrDefault(ci => ci.Product_Id == cartitem.Product_Id && ci.Cart_id == isUserHasCart.Id);
-            if (item==null)
+
+            var item = await _puppyDb.CartItemTb.SingleOrDefaultAsync(ci => ci.Product_Id == cartitem.Product_Id && ci.Cart_id == isUserHasCart.Id);
+
+            if (item == null)
             {
                 _puppyDb.CartItemTb.Add(
                 new CartItem
@@ -81,18 +94,19 @@ namespace Puppy_Project.Services.Carts
                     Cart_id = isUserHasCart.Id,
                     Product_Id = cartitem.Product_Id
                 });
-                _puppyDb.SaveChanges();
+                await _puppyDb.SaveChangesAsync();
                 return isUserValid;
             }
+
             item.Qty++;
             item.Total = item.Qty * item.product.Price;
-            _puppyDb.SaveChanges();
+            await _puppyDb.SaveChangesAsync();
             return isUserValid;
         }
 
-        public bool RemoveFromUserCart(int id)
+        public async Task<bool> RemoveFromUserCart(int id)
         {
-            var item = _puppyDb.CartItemTb.Find(id);
+            var item = await _puppyDb.CartItemTb.FindAsync(id);
             if (item == null)
             {
                 return false;
@@ -102,21 +116,21 @@ namespace Puppy_Project.Services.Carts
             return true;
         }
 
-        public bool UserCartQtyIncrement(int id)
+        public async Task<bool> UserCartQtyIncrement(int id)
         {
-            var itemInCart = _puppyDb.CartItemTb.Find(id);
+            var itemInCart = await _puppyDb.CartItemTb.FindAsync(id);
             if (itemInCart == null)
             {
                 return false;
             }
             itemInCart.Qty++;
-            _puppyDb.SaveChanges();
+            await _puppyDb.SaveChangesAsync();
             return true;
         }
 
-        public bool UserCartQtyDecrement(int id)
+        public async Task<bool> UserCartQtyDecrement(int id)
         {
-            var itemInCart = _puppyDb.CartItemTb.Find(id);
+            var itemInCart = await _puppyDb.CartItemTb.FindAsync(id);
             if (itemInCart == null)
             {
                 return false;
@@ -125,10 +139,10 @@ namespace Puppy_Project.Services.Carts
             {
                 return false;
             }
-                if (itemInCart.Qty > 1)
+            if (itemInCart.Qty > 1)
             {
                 itemInCart.Qty--;
-                _puppyDb.SaveChanges();
+                await _puppyDb.SaveChangesAsync();
             }
             return true;
         }

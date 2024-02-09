@@ -7,8 +7,6 @@ namespace Puppy_Project.Models.ProductDTO
         [Required]
         public string Type { get; set; }
         [Required]
-        public string Img { get; set; }
-        [Required]
         public string Name { get; set; }
         public string Detail { get; set; }
         public string About { get; set; }

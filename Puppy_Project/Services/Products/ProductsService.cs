@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Models;
@@ -11,10 +12,15 @@ namespace Puppy_Project.Services.Products
     {
         private readonly IMapper _mapper;
         private readonly PuppyDb _puppyDb;
-        public ProductsService(PuppyDb puppyDb,IMapper mapper)
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public ProductsService(PuppyDb puppyDb,IMapper mapper, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
-            _puppyDb=puppyDb;
+            _puppyDb = puppyDb;
             _mapper = mapper;
+            _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
         }
 
 
@@ -23,17 +29,21 @@ namespace Puppy_Project.Services.Products
         {
             try
             {
-                var tmpProductlist = _puppyDb.ProductsTb.Include(cg=>cg.Category).ToList();
-                var productlist = tmpProductlist.Select(cg => new outProductDTO
+                var tmpProductlist = _puppyDb.ProductsTb.Include(cg=>cg.Category);
+                if(tmpProductlist == null)
                 {
-                    Id = cg.Id,
-                    Type = cg.Type,
-                    Img = cg.Img,
-                    Name = cg.Name ,
-                    Detail = cg.Detail,
-                    About = cg.About,
-                    Price = cg.Price,
-                    Ctg = cg.Category.Ctg
+                    return new List<outProductDTO>();
+                }
+                var productlist = tmpProductlist.Select(p => new outProductDTO
+                {
+                    Id = p.Id,
+                    Type = p.Type,
+                    Img = $"{_configuration["HostUrl:url"]}/Products/{p.Img}",
+                    Name = p.Name ,
+                    Detail = p.Detail,
+                    About = p.About,
+                    Price = p.Price,
+                    Ctg = p.Category.Ctg
                 }).ToList();
                 return productlist;
             }catch(Exception ex)
@@ -42,37 +52,64 @@ namespace Puppy_Project.Services.Products
             }   
         }
 
-        public bool AddProduct(AddProductDTO product)
+        public bool AddProduct(AddProductDTO product, IFormFile image)
         {
             try
             {
+                string productImage = null;
+                if (image != null && image.Length > 0)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Products", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        image.CopyTo(stream);
+                    }
+                    productImage = fileName;
+                }
+
                 bool isValid = _puppyDb.CategoryTB.Any(c => c.Id == product.Category_id);
-                if (!isValid)
+                if (!isValid || productImage == null)
                 {
                     return false;
                 }
                 var productdto = _mapper.Map<Product>(product);
+                productdto.Img = productImage;
                 _puppyDb.ProductsTb.Add(productdto);
                 _puppyDb.SaveChanges();
                 return isValid;
-            }catch(Exception ex)
+        }catch(Exception ex)
             {
                 return false;
             }
-            
-        }
+
+}
 
 
-        public bool UpdateProduct(int id, AddProductDTO product) 
+        public bool UpdateProduct(int id, AddProductDTO product,IFormFile image) 
         {
             try
             {
+                string productImage = null;
+                if (image != null && image.Length > 0)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Products", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        image.CopyTo(stream);
+                    }
+                    productImage = fileName;
+                }
                 var isItemFounded = _puppyDb.ProductsTb.SingleOrDefault(p => p.Id == id);
-                if (isItemFounded == null)
+                if (isItemFounded == null || productImage == null)
                 {
                     return false;
                 }
                 _mapper.Map(product, isItemFounded);
+                isItemFounded.Img = productImage;
                 _puppyDb.SaveChanges();
                 return true;
             }catch( Exception ex)
