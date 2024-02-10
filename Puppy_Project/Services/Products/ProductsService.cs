@@ -25,7 +25,7 @@ namespace Puppy_Project.Services.Products
 
 
 
-        public List<outProductDTO> GetProducts()
+        public async Task<List<outProductDTO>> GetProducts()
         {
             try
             {
@@ -34,7 +34,7 @@ namespace Puppy_Project.Services.Products
                 {
                     return new List<outProductDTO>();
                 }
-                var productlist = tmpProductlist.Select(p => new outProductDTO
+                var productlist =await tmpProductlist.Select(p => new outProductDTO
                 {
                     Id = p.Id,
                     Type = p.Type,
@@ -44,7 +44,7 @@ namespace Puppy_Project.Services.Products
                     About = p.About,
                     Price = p.Price,
                     Ctg = p.Category.Ctg
-                }).ToList();
+                }).ToListAsync();
                 return productlist;
             }catch(Exception ex)
             {
@@ -52,7 +52,37 @@ namespace Puppy_Project.Services.Products
             }   
         }
 
-        public bool AddProduct(AddProductDTO product, IFormFile image)
+        public async Task<List<outProductDTO>> GetProductsByPage(int pageNo,int pageSize)
+        {
+            try
+            {
+                int initial = 1;
+                int skipdata = (pageNo - initial) * pageSize;
+                var tmpProductlist = _puppyDb.ProductsTb.Include(cg => cg.Category);
+                if (tmpProductlist == null)
+                {
+                    return new List<outProductDTO>();
+                }
+                var productlist = await tmpProductlist.Skip(skipdata).Take(pageSize).Select(p => new outProductDTO
+                {
+                    Id = p.Id,
+                    Type = p.Type,
+                    Img = $"{_configuration["HostUrl:url"]}/Products/{p.Img}",
+                    Name = p.Name,
+                    Detail = p.Detail,
+                    About = p.About,
+                    Price = p.Price,
+                    Ctg = p.Category.Ctg
+                }).ToListAsync();
+                return productlist;
+            }catch(System.Exception ex)
+            {
+                return new List<outProductDTO>();
+            }
+        }
+
+
+        public async Task<bool> AddProduct(AddProductDTO product, IFormFile image)
         {
             try
             {
@@ -64,12 +94,12 @@ namespace Puppy_Project.Services.Products
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        image.CopyTo(stream);
+                        image.CopyToAsync(stream);
                     }
                     productImage = fileName;
                 }
 
-                bool isValid = _puppyDb.CategoryTB.Any(c => c.Id == product.Category_id);
+                bool isValid = await _puppyDb.CategoryTB.AnyAsync(c => c.Id == product.Category_id);
                 if (!isValid || productImage == null)
                 {
                     return false;
@@ -87,7 +117,7 @@ namespace Puppy_Project.Services.Products
 }
 
 
-        public bool UpdateProduct(int id, AddProductDTO product,IFormFile image) 
+        public async Task<bool> UpdateProduct(int id, AddProductDTO product,IFormFile image) 
         {
             try
             {
@@ -99,11 +129,11 @@ namespace Puppy_Project.Services.Products
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        image.CopyTo(stream);
+                        image.CopyToAsync(stream);
                     }
                     productImage = fileName;
                 }
-                var isItemFounded = _puppyDb.ProductsTb.SingleOrDefault(p => p.Id == id);
+                var isItemFounded = await _puppyDb.ProductsTb.SingleOrDefaultAsync(p => p.Id == id);
                 if (isItemFounded == null || productImage == null)
                 {
                     return false;
@@ -118,11 +148,11 @@ namespace Puppy_Project.Services.Products
             }   
         }
 
-        public bool DeleteProduct(int id)
+        public async Task<bool> DeleteProduct(int id)
         {
             try
             {
-                var isItemExist = _puppyDb.ProductsTb.SingleOrDefault(p => p.Id == id);
+                var isItemExist = await _puppyDb.ProductsTb.SingleOrDefaultAsync(p => p.Id == id);
                 if (isItemExist == null)
                 {
                     return false;

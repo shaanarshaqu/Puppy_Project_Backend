@@ -18,74 +18,95 @@ namespace Puppy_Project.Services.WishLists
 
 
 
-        public List<outWishListDTO> ListUserWishList(int userid)
+        public async Task<List<outWishListDTO>> ListUserWishList(int userid)
         {
-            bool isUserHasWishList = _puppyDb.WishListTb.Any(w=>w.UserId == userid);
-            if (!isUserHasWishList)
+            try
             {
-                return new List<outWishListDTO>();
-            }
-            var userwishlist = _puppyDb.WishListTb
-                .Include(w=>w.wishListItems)
-                .ThenInclude(wi=>wi.product)
-                .FirstOrDefault(w=>w.UserId == userid);
+                bool isUserHasWishList = await _puppyDb.WishListTb.AnyAsync(w => w.UserId == userid);
+                if (!isUserHasWishList)
+                {
+                    return new List<outWishListDTO>();
+                }
+                var userwishlist = await _puppyDb.WishListTb
+                    .Include(w => w.wishListItems)
+                    .ThenInclude(wi => wi.product)
+                    .FirstOrDefaultAsync(w => w.UserId == userid);
 
-            if(userwishlist == null)
-            {
-                return new List<outWishListDTO>();
-            }
+                if (userwishlist == null)
+                {
+                    return new List<outWishListDTO>();
+                }
 
-            var userwishlistToList = userwishlist.wishListItems.Select(wi => 
-                        new outWishListDTO
+                var userwishlistToList = userwishlist.wishListItems.Select(wi =>
+                            new outWishListDTO
                             {
-                                Id= wi.Id,
-                                Img = $"{_configuration["HostUrl:url"]}/Products/{wi.product.Img}" ,
-                                Name= wi.product.Name,
-                                Detail= wi.product.Detail,
-                                Price= wi.product.Price,
+                                Id = wi.Id,
+                                Img = $"{_configuration["HostUrl:url"]}/Products/{wi.product.Img}",
+                                Name = wi.product.Name,
+                                Detail = wi.product.Detail,
+                                Price = wi.product.Price,
                                 Product_id = wi.product.Id
                             }).ToList();
 
-            return userwishlistToList;
+                return userwishlistToList;
+            }catch(Exception ex)
+            {
+                return new List<outWishListDTO>();
+            }
+            
         }
 
 
 
-        public bool AddNewWishList(AddWishListDTO wishlist)
+        public async Task<bool> AddNewWishList(AddWishListDTO wishlist)
         {
-            bool isUserValid = _puppyDb.UsersTb.Any(u => u.Id == wishlist.User_Id);
-            bool isProductValid = _puppyDb.ProductsTb.Any(p => p.Id == wishlist.Product_Id);
-            if (!isUserValid || !isProductValid)
+            try
             {
-                return false;
-            }
-            var isUserHasWishList = _puppyDb.WishListTb.SingleOrDefault(w=>w.UserId==wishlist.User_Id);
-            if(isUserHasWishList == null)
-            {
-                _puppyDb.WishListTb.Add(new WishList { UserId = wishlist.User_Id });
-                _puppyDb.SaveChanges();
-                isUserHasWishList = _puppyDb.WishListTb.SingleOrDefault(w => w.UserId == wishlist.User_Id);
-            }
-            var isProductAlreadyinWishlist = _puppyDb.WishListItemTb.SingleOrDefault(wi=>wi.WishList_Id == isUserHasWishList.Id && wi.Product_Id == wishlist.Product_Id);
-            if( isProductAlreadyinWishlist == null)
-            {
-                _puppyDb.WishListItemTb.Add(new WishListItem { WishList_Id = isUserHasWishList.Id , Product_Id = wishlist.Product_Id});
-                _puppyDb.SaveChanges();
+                bool isUserValid = await _puppyDb.UsersTb.AnyAsync(u => u.Id == wishlist.User_Id);
+                bool isProductValid = await _puppyDb.ProductsTb.AnyAsync(p => p.Id == wishlist.Product_Id);
+                if (!isUserValid || !isProductValid)
+                {
+                    return false;
+                }
+                var isUserHasWishList = await _puppyDb.WishListTb.SingleOrDefaultAsync(w => w.UserId == wishlist.User_Id);
+                if (isUserHasWishList == null)
+                {
+                    _puppyDb.WishListTb.Add(new WishList { UserId = wishlist.User_Id });
+                    await _puppyDb.SaveChangesAsync();
+                    isUserHasWishList = await _puppyDb.WishListTb.SingleOrDefaultAsync(w => w.UserId == wishlist.User_Id);
+                }
+                var isProductAlreadyinWishlist = await _puppyDb.WishListItemTb.SingleOrDefaultAsync(wi => wi.WishList_Id == isUserHasWishList.Id && wi.Product_Id == wishlist.Product_Id);
+                if (isProductAlreadyinWishlist == null)
+                {
+                    _puppyDb.WishListItemTb.Add(new WishListItem { WishList_Id = isUserHasWishList.Id, Product_Id = wishlist.Product_Id });
+                    await _puppyDb.SaveChangesAsync();
+                    return true;
+                }
                 return true;
-            }
-            return true;
-        }
-
-        public bool RemoveWishList(int id)
-        {
-            var IsWishListExist = _puppyDb.WishListItemTb.Find(id);
-            if( IsWishListExist == null)
+            }catch(Exception ex)
             {
                 return false;
             }
-            _puppyDb.WishListItemTb.Remove(IsWishListExist);
-            _puppyDb.SaveChanges();
-            return true;
+            
+        }
+
+        public async Task<bool> RemoveWishList(int id)
+        {
+            try
+            {
+                var IsWishListExist = await _puppyDb.WishListItemTb.FindAsync(id);
+                if (IsWishListExist == null)
+                {
+                    return false;
+                }
+                _puppyDb.WishListItemTb.Remove(IsWishListExist);
+                await _puppyDb.SaveChangesAsync();
+                return true;
+            }catch(Exception ex)
+            {
+                return false;
+            }
+            
         }
     }
 }

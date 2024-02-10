@@ -4,8 +4,8 @@ namespace Puppy_Project.Services.Orders
 {
     public interface IOrderService
     {
-        List<outOrderDTO> ListUserOrder(int id);
-        bool AddUserOrder(inputOrderDTO order);
-        bool RemoveAllorders(int userid);
+        Task<List<outOrderDTO>> ListUserOrder(int id);
+        Task<bool> AddUserOrder(inputOrderDTO order);
+        Task<bool> RemoveAllorders(int userid);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Models.CartDTO;
@@ -17,13 +18,15 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> GetCartDetails(int id)
         {
             var usercart = await _cart.ListCartofUsers(id);
             return usercart==null ? BadRequest("User Has no cart") : Ok(usercart);
         }
 
-        [HttpPost]
+        [HttpPost("AddUserCart")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AddUserCart([FromBody] AddCartDTO cartitem)
         {
@@ -36,6 +39,7 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpPut("increment/{id:int}")]
+        [Authorize]
         public async Task<IActionResult> IncrementCartitem(int id)
         {
             bool incremented = await _cart.UserCartQtyIncrement(id);
@@ -43,6 +47,7 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpPut("decrement/{id:int}")]
+        [Authorize]
         public async Task<IActionResult> DecrementCartitem(int id)
         {
             bool decremented = await _cart.UserCartQtyDecrement(id);
@@ -50,6 +55,7 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> RemoveFromCart(int id)
         {
             bool isRemoved = await _cart.RemoveFromUserCart(id);

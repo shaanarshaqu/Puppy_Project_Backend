@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Puppy_Project.InputDTOs;
@@ -26,14 +27,15 @@ namespace Puppy_Project.Controllers
 
 
         [HttpGet(Name="GetUsers")]
+        [Authorize(Roles="admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
             try
             {
-                var userslist = _users.ListUsers();
+                var userslist = await _users.ListUsers();
                 return userslist != null ? Ok(userslist) : BadRequest("No Users Found");
             }catch(Exception ex)
             {
@@ -46,9 +48,9 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult UserRegister([FromBody] RegisterDTO user)
+        public async Task<IActionResult> UserRegister([FromBody] RegisterDTO user)
         {
-            bool isUserAdded = _users.Register(user);
+            bool isUserAdded = await _users.Register(user);
             if (!isUserAdded)
             {
                 return BadRequest("User Already Exiset");
@@ -61,9 +63,9 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult UserLogin([FromBody] inputUserDTO user)
+        public async Task<IActionResult> UserLogin([FromBody] inputUserDTO user)
         {
-            var isUser = _users.Login(user);
+            var isUser =await _users.Login(user);
             if (isUser == null)
             {
                 return BadRequest();

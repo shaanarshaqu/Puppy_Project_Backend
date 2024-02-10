@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Models.OrderDTO;
 using Puppy_Project.Services.Orders;
@@ -18,24 +19,48 @@ namespace Puppy_Project.Controllers
 
 
         [HttpGet("{id:int}")]
-        public IActionResult ListUserOrder(int id)
+        [Authorize]
+        public async Task<IActionResult> ListUserOrder(int id)
         {
-            var order_list = _order.ListUserOrder(id);
-            return Ok(order_list);
+            try
+            {
+                var order_list = await _order.ListUserOrder(id);
+                return Ok(order_list);
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [HttpPost]
-        public IActionResult CreateOrder(inputOrderDTO order)
+        [Authorize]
+        public async Task<IActionResult> CreateOrder(inputOrderDTO order)
         {
-            bool isAdded = _order.AddUserOrder(order);
-            return isAdded ? Ok(isAdded) : BadRequest();
+            try
+            {
+                bool isAdded = await _order.AddUserOrder(order);
+                return isAdded ? Ok(isAdded) : BadRequest();
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult DeleteOrder(int id)
+        [Authorize]
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            bool isDeleted = _order.RemoveAllorders(id);
-            return isDeleted ? Ok(isDeleted):BadRequest(isDeleted);
+            try
+            {
+                bool isDeleted = await _order.RemoveAllorders(id);
+                return isDeleted ? Ok(isDeleted) : BadRequest(isDeleted);
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
     }
 }

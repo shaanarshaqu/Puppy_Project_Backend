@@ -7,8 +7,8 @@ namespace Puppy_Project.Interfaces
 {
     public interface IUsersService
     {
-        List<outUserDTO> ListUsers();
-        bool Register(RegisterDTO user);
-        outUserDTO Login(inputUserDTO user);
+        Task<List<outUserDTO>> ListUsers();
+        Task<bool> Register(RegisterDTO user);
+        Task<outUserDTO> Login(inputUserDTO user);
     }
 }

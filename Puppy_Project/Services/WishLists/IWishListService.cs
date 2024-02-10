@@ -4,8 +4,8 @@ namespace Puppy_Project.Services.WishLists
 {
     public interface IWishListService
     {
-        List<outWishListDTO> ListUserWishList(int userid);
-        bool AddNewWishList(AddWishListDTO wishlist);
-        bool RemoveWishList(int id);
+        Task<List<outWishListDTO>> ListUserWishList(int userid);
+        Task<bool> AddNewWishList(AddWishListDTO wishlist);
+        Task<bool> RemoveWishList(int id);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Models.CategoryDTO;
 using Puppy_Project.Services.Categorys;
@@ -16,22 +17,25 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetCategories() 
+        [Authorize(Roles ="admin")]
+        public async Task<IActionResult> GetCategories() 
         { 
-            return Ok(_category.DisplayCategories());
+            var categorylist = await _category.DisplayCategories();
+            return Ok(categorylist);
         }
 
 
 
         [HttpPost("AddNewCategory")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddCategory([FromBody] AddCategoryDTO category) 
+        public async Task<IActionResult> AddCategory([FromBody] AddCategoryDTO category) 
         {
             try
             {
-                bool isAdded = _category.AddCategory(category);
+                bool isAdded = await _category.AddCategory(category);
                 if (!isAdded) 
                 {
                     return BadRequest();
@@ -46,14 +50,15 @@ namespace Puppy_Project.Controllers
 
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
             try
             {
-                bool isDeleted = _category.DeleteCategory(id);
+                bool isDeleted = await _category.DeleteCategory(id);
                 return isDeleted ? Ok(isDeleted) : BadRequest(isDeleted);
             }catch(Exception ex)
             {

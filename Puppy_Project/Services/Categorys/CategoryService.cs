@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Models;
 using Puppy_Project.Models.CategoryDTO;
@@ -18,21 +19,21 @@ namespace Puppy_Project.Services.Categorys
 
 
 
-        public List<outCategoryDTO> DisplayCategories()
+        public async Task<List<outCategoryDTO>> DisplayCategories()
         {
-            var list = _mapper.Map<List<outCategoryDTO>>(_puppyDb.CategoryTB.ToList());
-            return list;
+            var list = await _puppyDb.CategoryTB.ToListAsync();
+            return _mapper.Map<List<outCategoryDTO>>(list); ;
         }
 
 
 
 
-        public bool AddCategory(AddCategoryDTO ctg)
+        public async Task<bool> AddCategory(AddCategoryDTO ctg)
         {
             try
             {
                 var categoryDto = _mapper.Map<Models.Category>(ctg);
-                var isCatodoryExist = _puppyDb.CategoryTB.FirstOrDefault(x => x.Ctg.ToLower() == categoryDto.Ctg.ToLower());
+                var isCatodoryExist =await _puppyDb.CategoryTB.FirstOrDefaultAsync(x => x.Ctg.ToLower() == categoryDto.Ctg.ToLower());
                 if(isCatodoryExist != null)
                 {
                     return false;
@@ -46,11 +47,11 @@ namespace Puppy_Project.Services.Categorys
             }
         }
 
-        public bool DeleteCategory(int id)
+        public async Task<bool> DeleteCategory(int id)
         {
             try
             {
-                var ctg_to_delete = _puppyDb.CategoryTB.FirstOrDefault(x => x.Id == id);
+                var ctg_to_delete = await _puppyDb.CategoryTB.FirstOrDefaultAsync(x => x.Id == id);
                 if (ctg_to_delete == null) 
                 {
                     return false;

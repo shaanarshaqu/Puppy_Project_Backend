@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Models.ProductDTO;
 using Puppy_Project.Services.Products;
@@ -22,11 +23,11 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult ListProducts()
+        public async Task<IActionResult> ListProducts()
         {
             try
             {
-                var productslist = _products.GetProducts();
+                var productslist = await _products.GetProducts();
                 return productslist.Count !=0 ? Ok(productslist):BadRequest("Products list is empty");
             }catch(Exception ex)
             {
@@ -35,16 +36,32 @@ namespace Puppy_Project.Controllers
             
         }
 
-
-        [HttpPost("AddProduct")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [HttpGet("ListProductsByPage")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddProduct([FromForm] AddProductDTO product,IFormFile image)
+        public async Task<IActionResult> ListProductByPage([FromQuery]int pageNo,int pageSize)
         {
             try
             {
-                bool isAdded = _products.AddProduct(product, image);
+                var productlist = await _products.GetProductsByPage(pageNo, pageSize);
+                return Ok(productlist);
+            }catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+        }
+
+
+        [HttpPost("AddProduct")]
+        [Authorize(Roles ="admin")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddProduct([FromForm] AddProductDTO product,IFormFile image)
+        {
+            try
+            {
+                bool isAdded =await _products.AddProduct(product, image);
                 if(!isAdded) 
                 {
                     return BadRequest("Category_id is not valid");
@@ -58,14 +75,15 @@ namespace Puppy_Project.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult UpdateProducts([FromForm] AddProductDTO product, int id,IFormFile image)
+        public async Task<IActionResult> UpdateProducts([FromForm] AddProductDTO product, int id,IFormFile image)
         {
             try
             {
-                bool isUpdated = _products.UpdateProduct(id, product, image);
+                bool isUpdated = await _products.UpdateProduct(id, product, image);
                 if (!isUpdated)
                 {
                     return NotFound("item not found");
@@ -79,14 +97,15 @@ namespace Puppy_Project.Controllers
 
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult DeleteItem(int id)
+        public async Task<IActionResult> DeleteItem(int id)
         {
             try
             {
-                bool isDeleted = _products.DeleteProduct(id);
+                bool isDeleted =await _products.DeleteProduct(id);
                 if (!isDeleted)
                 {
                     return NotFound(id);

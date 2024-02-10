@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Depandancies;
 using Puppy_Project.InputDTOs;
@@ -19,9 +20,9 @@ namespace Puppy_Project.Models
         }
 
 
-        public List<outUserDTO> ListUsers()
+        public async Task<List<outUserDTO>> ListUsers()
         {
-            var usersFromDb = _puppyDb.UsersTb.ToList();
+            var usersFromDb = await _puppyDb.UsersTb.ToListAsync();
             if(usersFromDb == null || usersFromDb.Count == 0)
             {
                 return null;
@@ -30,13 +31,13 @@ namespace Puppy_Project.Models
             return userDtolist;
         }
 
-        public bool Register(RegisterDTO user)
+        public async Task<bool> Register(RegisterDTO user)
         {
             using (var transaction = _puppyDb.Database.BeginTransaction())
             {
                 try
                 {
-                    var isUserExist = _puppyDb.UsersTb.SingleOrDefault(u => u.Email == user.Email);
+                    var isUserExist = await _puppyDb.UsersTb.SingleOrDefaultAsync(u => u.Email == user.Email);
                     if (isUserExist != null)
                     {
                         return false;
@@ -57,9 +58,9 @@ namespace Puppy_Project.Models
             }
         }
 
-        public outUserDTO Login(inputUserDTO user)
+        public async Task<outUserDTO> Login(inputUserDTO user)
         {
-            var isUser = _puppyDb.UsersTb.FirstOrDefault(u => u.Email == user.Email);
+            var isUser = await _puppyDb.UsersTb.FirstOrDefaultAsync(u => u.Email == user.Email);
   
             if (isUser == null || !PasswordSecure.VerifyPassword(user.Password, isUser.Password))
             {

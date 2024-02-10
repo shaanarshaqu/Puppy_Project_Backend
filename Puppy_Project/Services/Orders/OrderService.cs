@@ -18,9 +18,9 @@ namespace Puppy_Project.Services.Orders
             _Configuration = configuration;
         }
 
-        public List<outOrderDTO> ListUserOrder(int id)
+        public async Task<List<outOrderDTO>> ListUserOrder(int id)
         {
-            var user_order = _puppyDb.OrderTb.Include(o=>o.orderItems).FirstOrDefault(o=>o.User_Id == id);
+            var user_order = await _puppyDb.OrderTb.Include(o=>o.orderItems).FirstOrDefaultAsync(o=>o.User_Id == id);
             if (user_order == null)
             {
                 return new List<outOrderDTO>();
@@ -40,22 +40,22 @@ namespace Puppy_Project.Services.Orders
         }
 
 
-        public bool AddUserOrder(inputOrderDTO order)
+        public async Task<bool> AddUserOrder(inputOrderDTO order)
         {
-            bool isUserValid = _puppyDb.UsersTb.Any(u => u.Id == order.User_Id);
-            var isProductValid = _puppyDb.ProductsTb.Find(order.Product_Id);
+            bool isUserValid = await _puppyDb.UsersTb.AnyAsync(u => u.Id == order.User_Id);
+            var isProductValid = await _puppyDb.ProductsTb.FindAsync(order.Product_Id);
             if (!isUserValid || isProductValid==null)
             {
                 return false;
             }
-            var isUserhasOrder = _puppyDb.OrderTb.SingleOrDefault(o=>o.User_Id==order.User_Id);
+            var isUserhasOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o=>o.User_Id==order.User_Id);
             if(isUserhasOrder == null)
             {
                 _puppyDb.OrderTb.Add(new Order { User_Id= order.User_Id, orderItems =new List<OrderItem>() });
                 _puppyDb.SaveChanges();
-                isUserhasOrder = _puppyDb.OrderTb.SingleOrDefault(o => o.User_Id == order.User_Id);
+                isUserhasOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o => o.User_Id == order.User_Id);
             }
-            var inOrderItemshasItem = _puppyDb.OrderItemTb.SingleOrDefault(oi => oi.Product_Id == order.Product_Id && oi.Order_Id == isUserhasOrder.Id);
+            var inOrderItemshasItem = await _puppyDb.OrderItemTb.SingleOrDefaultAsync(oi => oi.Product_Id == order.Product_Id && oi.Order_Id == isUserhasOrder.Id);
             if(inOrderItemshasItem == null) 
             {
                 OrderItem orderitem = new OrderItem();
@@ -73,9 +73,9 @@ namespace Puppy_Project.Services.Orders
             return true;           
         }
 
-        public bool RemoveAllorders(int userid)
+        public async Task<bool> RemoveAllorders(int userid)
         {
-            var userHasOrder = _puppyDb.OrderTb.SingleOrDefault(o=>o.User_Id == userid);
+            var userHasOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o=>o.User_Id == userid);
             if(userHasOrder == null)
             {
                 return false;
