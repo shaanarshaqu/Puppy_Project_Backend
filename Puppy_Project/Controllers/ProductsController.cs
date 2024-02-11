@@ -36,7 +36,51 @@ namespace Puppy_Project.Controllers
             
         }
 
-        [HttpGet("ListProductsByPage")]
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            try
+            {
+                var product = await _products.GetProductById(id);
+                if(product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
+
+
+
+        [HttpGet("ByCategory/{id:int}")]
+        public async Task<IActionResult> GetProductsByCategory(int id)
+        {
+            try
+            {
+                var list = await _products.GetProductsByCategory(id);
+                return Ok(list);
+            }catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+            
+        }
+        
+
+
+
+
+        [HttpGet("Page")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ListProductByPage([FromQuery]int pageNo,int pageSize)
@@ -52,7 +96,7 @@ namespace Puppy_Project.Controllers
         }
 
 
-        [HttpPost("AddProduct")]
+        [HttpPost("Add")]
         [Authorize(Roles ="admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -74,7 +118,7 @@ namespace Puppy_Project.Controllers
             
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("Update/{id:int}")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -96,7 +140,7 @@ namespace Puppy_Project.Controllers
         }
 
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("Remove/{id:int}")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

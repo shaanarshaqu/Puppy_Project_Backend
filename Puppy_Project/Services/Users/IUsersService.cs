@@ -8,7 +8,11 @@ namespace Puppy_Project.Interfaces
     public interface IUsersService
     {
         Task<List<outUserDTO>> ListUsers();
+        Task<outUserDTO> GetUser(int id);
         Task<bool> Register(RegisterDTO user);
         Task<outUserDTO> Login(inputUserDTO user);
+        Task<bool> AddNewAdmin(RegisterDTO user);
+        Task<bool> BlockUser(int id);
+        Task<bool> UnBlockUser(int id);
     }
 }

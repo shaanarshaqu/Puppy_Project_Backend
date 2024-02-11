@@ -7,5 +7,7 @@ namespace Puppy_Project.Services.Orders
         Task<List<outOrderDTO>> ListUserOrder(int id);
         Task<bool> AddUserOrder(inputOrderDTO order);
         Task<bool> RemoveAllorders(int userid);
+        Task<int> TotalPurchase();
+        Task<string> TotalRevenueGenerated();
     }
 }

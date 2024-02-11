@@ -26,7 +26,7 @@ namespace Puppy_Project.Controllers
 
 
 
-        [HttpPost("AddNewCategory")]
+        [HttpPost("Add")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

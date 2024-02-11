@@ -38,7 +38,7 @@ namespace Puppy_Project.Services.Products
                 {
                     Id = p.Id,
                     Type = p.Type,
-                    Img = $"{_configuration["HostUrl:url"]}/Products/{p.Img}",
+                    Img = $"{_configuration["HostUrl:images"]}/Products/{p.Img}",
                     Name = p.Name ,
                     Detail = p.Detail,
                     About = p.About,
@@ -51,6 +51,65 @@ namespace Puppy_Project.Services.Products
                 return null;
             }   
         }
+
+
+        public async Task<List<outProductDTO>> GetProductsByCategory(int ctg_id)
+        {
+            try
+            {
+                var tmpProductlist = _puppyDb.ProductsTb.Include(cg => cg.Category).Where(p=>p.Category_id == ctg_id);
+                if (tmpProductlist == null)
+                {
+                    return new List<outProductDTO>();
+                }
+                var productlist = await tmpProductlist.Select(p => new outProductDTO
+                {
+                    Id = p.Id,
+                    Type = p.Type,
+                    Img = $"{_configuration["HostUrl:images"]}/Products/{p.Img}",
+                    Name = p.Name,
+                    Detail = p.Detail,
+                    About = p.About,
+                    Price = p.Price,
+                    Ctg = p.Category.Ctg
+                }).ToListAsync();
+                return productlist;
+            }
+            catch (Exception ex)
+            {
+                return new List<outProductDTO>();
+            }
+        }
+
+        public async Task<outProductDTO> GetProductById(int id)
+        {
+            try
+            {
+                var tmpProduct =  _puppyDb.ProductsTb.Include(cg => cg.Category).FirstOrDefault(p=>p.Id == id);
+                if (tmpProduct == null)
+                {
+                    return null;
+                }
+                var product = new outProductDTO
+                {
+                    Id = tmpProduct.Id,
+                    Type = tmpProduct.Type,
+                    Img = $"{_configuration["HostUrl:images"]}/Products/{tmpProduct.Img}",
+                    Name = tmpProduct.Name,
+                    Detail = tmpProduct.Detail,
+                    About = tmpProduct.About,
+                    Price = tmpProduct.Price,
+                    Ctg = tmpProduct.Category.Ctg
+                };
+                return product;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
 
         public async Task<List<outProductDTO>> GetProductsByPage(int pageNo,int pageSize)
         {
@@ -67,7 +126,7 @@ namespace Puppy_Project.Services.Products
                 {
                     Id = p.Id,
                     Type = p.Type,
-                    Img = $"{_configuration["HostUrl:url"]}/Products/{p.Img}",
+                    Img = $"{_configuration["HostUrl:images"]}/Products/{p.Img}",
                     Name = p.Name,
                     Detail = p.Detail,
                     About = p.About,

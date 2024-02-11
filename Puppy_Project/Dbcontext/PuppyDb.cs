@@ -75,8 +75,6 @@ namespace Puppy_Project.Dbcontext
                 .WithMany(p => p.wishListitems)
                 .HasForeignKey(wi => wi.Product_Id);
 
-
-
         }
 
 

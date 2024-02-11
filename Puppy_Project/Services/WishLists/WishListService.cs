@@ -41,7 +41,7 @@ namespace Puppy_Project.Services.WishLists
                             new outWishListDTO
                             {
                                 Id = wi.Id,
-                                Img = $"{_configuration["HostUrl:url"]}/Products/{wi.product.Img}",
+                                Img = $"{_configuration["HostUrl:images"]}/Products/{wi.product.Img}",
                                 Name = wi.product.Name,
                                 Detail = wi.product.Detail,
                                 Price = wi.product.Price,

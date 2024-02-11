@@ -33,7 +33,7 @@ namespace Puppy_Project.Controllers
             
         }
 
-        [HttpPost]
+        [HttpPost("Add")]
         [Authorize]
         public async Task<IActionResult> CreateOrder(inputOrderDTO order)
         {
@@ -48,7 +48,7 @@ namespace Puppy_Project.Controllers
             
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("CancelUserOrder/{id:int}")]
         [Authorize]
         public async Task<IActionResult> DeleteOrder(int id)
         {
@@ -62,5 +62,41 @@ namespace Puppy_Project.Controllers
             }
             
         }
+
+
+
+        [HttpGet("TotalParchase")]
+        [Authorize(Roles ="admin")]
+        public async Task<IActionResult> TotalProductParchased()
+        {
+            try
+            {
+                int total = await _order.TotalPurchase();
+                return Ok(total);
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+        }
+
+
+
+        [HttpGet("TotalRevenue")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> TotalRevenueGenerated()
+        {
+            try
+            {
+                string total = await _order.TotalRevenueGenerated();
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
     }
 }

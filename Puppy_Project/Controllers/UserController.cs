@@ -44,18 +44,95 @@ namespace Puppy_Project.Controllers
         }
 
 
+        [HttpGet("{id:int}")]
+        [Authorize(Roles = "admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            try
+            {
+                var userslist = await _users.GetUser(id);
+                return userslist != null ? Ok(userslist) : BadRequest("No Users Found");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPost("AddAdmin")]
+        [Authorize(Roles="admin")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddNewAdmin([FromBody] RegisterDTO user)
+        {
+            try
+            {
+                bool isUserAdded = await _users.AddNewAdmin(user);
+                if (!isUserAdded)
+                {
+                    return BadRequest("Already Exiset");
+                }
+                return CreatedAtRoute("GetUsers", new { id = 0 }, user);
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            
+        }
+
+
+        [HttpPut("BlockUser/{id:int}")]
+        [Authorize(Roles="admin")]
+        public async Task<IActionResult> BlockUser(int id)
+        {
+            try
+            {
+                bool isBlocked = await _users.BlockUser(id);
+                return isBlocked ? Ok(id) : BadRequest();
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            
+        }
+
+        [HttpPut("UnBlockUser/{id:int}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UnBlockUser(int id)
+        {
+            try
+            {
+                bool isBlocked = await _users.UnBlockUser(id);
+                return isBlocked ? Ok(id) : BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
+
+
         [HttpPost("Register")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UserRegister([FromBody] RegisterDTO user)
         {
-            bool isUserAdded = await _users.Register(user);
-            if (!isUserAdded)
+            try
             {
-                return BadRequest("User Already Exiset");
+                bool isUserAdded = await _users.Register(user);
+                return isUserAdded? Ok(user.Email) : BadRequest("User Already Exiset");
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
-            return CreatedAtRoute("GetUsers",new {id=0},user);
+            
         }
 
 
@@ -65,13 +142,20 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UserLogin([FromBody] inputUserDTO user)
         {
-            var isUser =await _users.Login(user);
-            if (isUser == null)
+            try
             {
-                return BadRequest();
+                var isUser = await _users.Login(user);
+                if (isUser == null || isUser.Role == null)
+                {
+                    return BadRequest();
+                }
+                string token = GenerateJwtToken(isUser);
+                return Ok(new { id = isUser.Id, token = token });
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
-            string token = GenerateJwtToken(isUser);
-            return Ok(new {id= isUser.Id,token = token});
+            
         }
 
         private string GenerateJwtToken(outUserDTO user)

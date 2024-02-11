@@ -21,8 +21,15 @@ namespace Puppy_Project.Services.Categorys
 
         public async Task<List<outCategoryDTO>> DisplayCategories()
         {
-            var list = await _puppyDb.CategoryTB.ToListAsync();
-            return _mapper.Map<List<outCategoryDTO>>(list); ;
+            try
+            {
+                var list = await _puppyDb.CategoryTB.ToListAsync();
+                return _mapper.Map<List<outCategoryDTO>>(list); 
+            }catch(Exception ex)
+            {
+                return new List<outCategoryDTO>();
+            }
+            
         }
 
 
