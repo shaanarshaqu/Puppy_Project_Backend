@@ -27,7 +27,7 @@ namespace Puppy_Project.Services.Carts
 
                 if (isUserExist == null)
                 {
-                    return new List<outCartDTO>();
+                    return null;
                 }
 
                 var temp = await _puppyDb.UsersTb
@@ -39,7 +39,7 @@ namespace Puppy_Project.Services.Carts
 
                 if (temp.cartuser == null)
                 {
-                    return new List<outCartDTO>();
+                    return null;
                 }
 
                 var cartItems = temp.cartuser.cartItemDTOs.Select(t =>
@@ -61,13 +61,13 @@ namespace Puppy_Project.Services.Carts
 
                 if (cartItems == null)
                 {
-                    return new List<outCartDTO>();
+                    return null;
                 }
 
                 return cartItems.ToList();
             }catch(Exception ex)
             {
-                return new List<outCartDTO>();
+                return null;
             }
             
         }
@@ -101,7 +101,8 @@ namespace Puppy_Project.Services.Carts
                     new CartItem
                     {
                         Cart_id = isUserHasCart.Id,
-                        Product_Id = cartitem.Product_Id
+                        Product_Id = cartitem.Product_Id,
+                        Qty=1
                     });
                     await _puppyDb.SaveChangesAsync();
                     return isUserValid;

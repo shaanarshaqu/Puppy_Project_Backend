@@ -31,6 +31,9 @@ namespace Puppy_Project.Dbcontext
             modelBuilder.Entity<User>()
                 .Property(u=>u.Role)
                 .HasDefaultValue("user");
+            modelBuilder.Entity<User>()
+                .Property(u => u.Status)
+                .HasDefaultValue("Active");
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)

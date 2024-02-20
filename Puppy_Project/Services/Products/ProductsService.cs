@@ -48,21 +48,34 @@ namespace Puppy_Project.Services.Products
                 return productlist;
             }catch(Exception ex)
             {
-                return null;
+                return new List<outProductDTO>();
             }   
         }
 
-
-        public async Task<List<outProductDTO>> GetProductsByCategory(int ctg_id)
+        public async Task<int> TotalDataCountByCategory(string category)
         {
             try
             {
-                var tmpProductlist = _puppyDb.ProductsTb.Include(cg => cg.Category).Where(p=>p.Category_id == ctg_id);
+                var totaldata = _puppyDb.ProductsTb.Include(p => p.Category).Where(p => p.Category.Ctg.ToLower() == category.ToLower());
+                return totaldata.Count();
+            }catch( Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<List<outProductDTO>> GetProductsByCategory(string category, int pageNo, int pageSize)
+        {
+            try
+            {
+                int initial = 1;
+                int skipdata = (pageNo - initial) * pageSize;
+                var tmpProductlist = _puppyDb.ProductsTb.Include(cg => cg.Category).Where(p=>p.Category.Ctg.ToLower() == category.ToLower());
                 if (tmpProductlist == null)
                 {
                     return new List<outProductDTO>();
                 }
-                var productlist = await tmpProductlist.Select(p => new outProductDTO
+                var productlist = await tmpProductlist.Skip(skipdata).Take(pageSize).Select(p => new outProductDTO
                 {
                     Id = p.Id,
                     Type = p.Type,
@@ -145,6 +158,12 @@ namespace Puppy_Project.Services.Products
         {
             try
             {
+                bool isItemExist = await _puppyDb.ProductsTb.AnyAsync(p=>p.Name.ToLower() == product.Name.ToLower());
+                bool isValid = await _puppyDb.CategoryTB.AnyAsync(c => c.Id == product.Category_id);
+                if (!isValid || isItemExist)
+                {
+                    return false;
+                }
                 string productImage = null;
                 if (image != null && image.Length > 0)
                 {
@@ -153,15 +172,9 @@ namespace Puppy_Project.Services.Products
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        image.CopyToAsync(stream);
+                        await image.CopyToAsync(stream);
                     }
                     productImage = fileName;
-                }
-
-                bool isValid = await _puppyDb.CategoryTB.AnyAsync(c => c.Id == product.Category_id);
-                if (!isValid || productImage == null)
-                {
-                    return false;
                 }
                 var productdto = _mapper.Map<Product>(product);
                 productdto.Img = productImage;
@@ -180,6 +193,11 @@ namespace Puppy_Project.Services.Products
         {
             try
             {
+                var isItemFounded = await _puppyDb.ProductsTb.SingleOrDefaultAsync(p => p.Id == id);
+                if (isItemFounded == null)
+                {
+                    return false;
+                }
                 string productImage = null;
                 if (image != null && image.Length > 0)
                 {
@@ -188,18 +206,14 @@ namespace Puppy_Project.Services.Products
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        image.CopyToAsync(stream);
+                        await image.CopyToAsync(stream);
                     }
                     productImage = fileName;
                 }
-                var isItemFounded = await _puppyDb.ProductsTb.SingleOrDefaultAsync(p => p.Id == id);
-                if (isItemFounded == null || productImage == null)
-                {
-                    return false;
-                }
+                
                 _mapper.Map(product, isItemFounded);
-                isItemFounded.Img = productImage;
-                _puppyDb.SaveChanges();
+                isItemFounded.Img = productImage ?? isItemFounded.Img;
+                await _puppyDb.SaveChangesAsync();
                 return true;
             }catch( Exception ex)
             {

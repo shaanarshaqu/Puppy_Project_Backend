@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Models.CartDTO;
+using Puppy_Project.Models.ProductDTO;
+using Puppy_Project.Secure;
 using Puppy_Project.Services.Carts;
 
 namespace Puppy_Project.Controllers
@@ -17,10 +19,17 @@ namespace Puppy_Project.Controllers
             _cart= cart;
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("UserCart")]
         [Authorize]
-        public async Task<IActionResult> GetCartDetails(int id)
+        public async Task<IActionResult> GetUserCart()
         {
+            string Bearer_token = HttpContext.Request.Headers["Authorization"];
+            string token = Bearer_token.Split(' ')[1];
+            int id = TokenDecoder.DecodeToken(token);
+            if (id == -1)
+            {
+                return BadRequest();
+            }
             var usercart = await _cart.ListCartofUsers(id);
             return usercart==null ? BadRequest("User Has no cart") : Ok(usercart);
         }
@@ -30,6 +39,12 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AddUserCart([FromBody] AddCartDTO cartitem)
         {
+            string token = HttpContext.Request.Headers["Authorization"];
+
+            if (TokenDecoder.DecodeToken(token.Replace("Bearer ", "")) != cartitem.UserId)
+            {
+                return StatusCode(StatusCodes.Status203NonAuthoritative);
+            }
             bool isAdded = await _cart.CreateUserCart(cartitem) ;
             if (!isAdded)
             {
@@ -38,27 +53,48 @@ namespace Puppy_Project.Controllers
             return Ok(isAdded);
         }
 
-        [HttpPut("increment/{id:int}")]
+        [HttpPut("increment")]
         [Authorize]
-        public async Task<IActionResult> IncrementCartitem(int id)
+        public async Task<IActionResult> IncrementCartitem([FromBody] QtyControllDto item)
         {
-            bool incremented = await _cart.UserCartQtyIncrement(id);
+            string Bearer_token = HttpContext.Request.Headers["Authorization"];
+            string token = Bearer_token.Split(' ')[1];
+            int id = TokenDecoder.DecodeToken(token);
+            if (id == -1 || item.UserId != id)
+            {
+                return BadRequest();
+            }
+            bool incremented = await _cart.UserCartQtyIncrement(item.ElementId);
             return incremented ? Ok("success") : BadRequest();
         }
 
-        [HttpPut("decrement/{id:int}")]
+        [HttpPut("decrement")]
         [Authorize]
-        public async Task<IActionResult> DecrementCartitem(int id)
+        public async Task<IActionResult> DecrementCartitem([FromBody] QtyControllDto item)
         {
-            bool decremented = await _cart.UserCartQtyDecrement(id);
+            string Bearer_token = HttpContext.Request.Headers["Authorization"];
+            string token = Bearer_token.Split(' ')[1];
+            int id = TokenDecoder.DecodeToken(token);
+            if (id == -1 || item.UserId != id)
+            {
+                return BadRequest();
+            }
+            bool decremented = await _cart.UserCartQtyDecrement(item.ElementId);
             return decremented ? Ok("success") : BadRequest();
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> RemoveFromCart(int id)
+        public async Task<IActionResult> RemoveFromCart([FromBody] QtyControllDto item)
         {
-            bool isRemoved = await _cart.RemoveFromUserCart(id);
+            string Bearer_token = HttpContext.Request.Headers["Authorization"];
+            string token = Bearer_token.Split(' ')[1];
+            int id = TokenDecoder.DecodeToken(token);
+            if (id == -1 || item.UserId != id)
+            {
+                return BadRequest();
+            }
+            bool isRemoved = await _cart.RemoveFromUserCart(item.ElementId);
             return isRemoved ? Ok("success") : NotFound();
         }
 

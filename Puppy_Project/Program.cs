@@ -70,7 +70,7 @@ builder.Services.AddCors(options =>
 });
 //-------------------------------------------------------
 
-
+builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
@@ -82,16 +82,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//------------------------------Authorization-----------------------------------------
-app.UseAuthentication();
-app.UseAuthorization();
-//------------------------------------------------------------------------------------
-
 
 //---------React----------------------------------
 app.UseCors("ReactPolicy");
 //-----------------------------------------------
 app.UseStaticFiles();
+
+
+//---------------------Authorization-------------------------
+app.UseAuthentication();
+app.UseAuthorization();
+//-----------------------------------------------------------
+
+
 
 app.MapControllers();
 

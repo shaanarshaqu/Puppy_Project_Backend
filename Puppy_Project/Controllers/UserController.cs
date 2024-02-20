@@ -6,6 +6,7 @@ using Puppy_Project.InputDTOs;
 using Puppy_Project.Interfaces;
 using Puppy_Project.Models;
 using Puppy_Project.Models.Input_OutputDTOs;
+using Puppy_Project.Secure;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -27,24 +28,42 @@ namespace Puppy_Project.Controllers
 
 
         [HttpGet(Name="GetUsers")]
-        [Authorize(Roles="admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsers()
         {
-            try
-            {
+            
                 var userslist = await _users.ListUsers();
                 return userslist != null ? Ok(userslist) : BadRequest("No Users Found");
-            }catch(Exception ex)
+            
+        }
+
+        [HttpGet("User")]
+        [Authorize]
+        public async Task<IActionResult> GetUser()
+        {
+            try
+            {
+                string Bearer_token = HttpContext.Request.Headers["Authorization"];
+                string token = Bearer_token.Split(' ')[1];
+                int id = TokenDecoder.DecodeToken(token);
+                if (id == -1)
+                {
+                    return BadRequest();
+                }
+                var user = await _users.GetUser(id);
+                return Ok(user);
+            }
+            catch(Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
 
-        [HttpGet("{id:int}")]
+        [HttpGet("User/{id:int}")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -53,7 +72,7 @@ namespace Puppy_Project.Controllers
         {
             try
             {
-                var userslist = await _users.GetUser(id);
+                var userslist = await _users.GetUserforAdmin(id);
                 return userslist != null ? Ok(userslist) : BadRequest("No Users Found");
             }
             catch (Exception ex)
@@ -122,12 +141,12 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UserRegister([FromBody] RegisterDTO user)
+        public async Task<IActionResult> UserRegister([FromForm] RegisterDTO user, IFormFile image)
         {
             try
             {
-                bool isUserAdded = await _users.Register(user);
-                return isUserAdded? Ok(user.Email) : BadRequest("User Already Exiset");
+                bool isUserAdded = await _users.Register(user, image);
+                return isUserAdded ? Ok(user.Email) : BadRequest();
             }catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
@@ -145,9 +164,13 @@ namespace Puppy_Project.Controllers
             try
             {
                 var isUser = await _users.Login(user);
-                if (isUser == null || isUser.Role == null)
+                if (isUser == null)
                 {
                     return BadRequest();
+                }
+                if(isUser.Status == "Blocked")
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized);
                 }
                 string token = GenerateJwtToken(isUser);
                 return Ok(new { id = isUser.Id, token = token });

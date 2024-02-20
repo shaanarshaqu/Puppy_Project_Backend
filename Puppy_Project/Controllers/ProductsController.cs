@@ -60,14 +60,27 @@ namespace Puppy_Project.Controllers
         }
 
 
-
-
-        [HttpGet("ByCategory/{id:int}")]
-        public async Task<IActionResult> GetProductsByCategory(int id)
+        [HttpGet("totalinCtg/{category}")]
+        public async Task<IActionResult> GetToTalCountinCtg(string category)
         {
             try
             {
-                var list = await _products.GetProductsByCategory(id);
+                var totalcount = await _products.TotalDataCountByCategory(category);
+                return Ok(totalcount);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        [HttpGet("ByCategory/")]
+        public async Task<IActionResult> GetProductsByCategory([FromQuery]string category, int pageNo, int pageSize)
+        {
+            try
+            {
+                var list = await _products.GetProductsByCategory(category, pageNo, pageSize);
                 return Ok(list);
             }catch(Exception ex)
             {
@@ -97,7 +110,7 @@ namespace Puppy_Project.Controllers
 
 
         [HttpPost("Add")]
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
