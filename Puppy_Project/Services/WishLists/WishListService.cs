@@ -90,16 +90,21 @@ namespace Puppy_Project.Services.WishLists
             
         }
 
-        public async Task<bool> RemoveWishList(int id)
+        public async Task<bool> RemoveWishList(int userid, int productid)
         {
             try
             {
-                var IsWishListExist = await _puppyDb.WishListItemTb.FindAsync(id);
+                var IsWishListExist = await _puppyDb.WishListTb.SingleOrDefaultAsync(w=>w.UserId == userid);
                 if (IsWishListExist == null)
                 {
                     return false;
                 }
-                _puppyDb.WishListItemTb.Remove(IsWishListExist);
+                var IsWishListItemExist = await _puppyDb.WishListItemTb.SingleOrDefaultAsync(wi => wi.WishList_Id == IsWishListExist.Id && wi.Product_Id == productid);
+                if (IsWishListItemExist == null)
+                {
+                    return false;
+                }
+                _puppyDb.WishListItemTb.Remove(IsWishListItemExist);
                 await _puppyDb.SaveChangesAsync();
                 return true;
             }catch(Exception ex)

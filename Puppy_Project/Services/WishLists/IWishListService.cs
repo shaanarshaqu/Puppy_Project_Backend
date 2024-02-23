@@ -6,6 +6,6 @@ namespace Puppy_Project.Services.WishLists
     {
         Task<List<outWishListDTO>> ListUserWishList(int userid);
         Task<bool> AddNewWishList(AddWishListDTO wishlist);
-        Task<bool> RemoveWishList(int id);
+        Task<bool> RemoveWishList(int userid , int productid);
     }
 }

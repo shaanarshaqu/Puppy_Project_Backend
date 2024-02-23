@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Puppy_Project.Dbcontext;
 using Puppy_Project.Models;
 using Puppy_Project.Models.OrderDTO;
+using Puppy_Project.Models.RazorPay;
+using Razorpay.Api;
 
 
 namespace Puppy_Project.Services.Orders
@@ -42,24 +44,7 @@ namespace Puppy_Project.Services.Orders
                     User_Id = order.Id
                 }).ToList();
                 return orderList;
-                /*var user_order = await _puppyDb.OrderTb.Include(o => o.orderItems).FirstOrDefaultAsync(o => o.User_Id == id);
-                Console.WriteLine(user_order);
-                if (user_order == null || user_order.orderItems == null)
-                {
-                    return new List<outOrderDTO>();
-                }
-                var outordertype = user_order.orderItems.Select(o => new outOrderDTO
-                {
-                    Id = o.Id,
-                    Product_Id = o.Product_Id,
-                    Qty = o.Qty,
-                    Img = $"{_Configuration["HostUrl:images"]}/Products/{o.product.Img}",
-                    Price = o.Total / o.Qty,
-                    Total = o.Total,
-                    User_Id = user_order.User_Id
-                }
-                ).ToList();
-                return outordertype;*/
+
             }
             catch(Exception ex)
             {
@@ -69,45 +54,90 @@ namespace Puppy_Project.Services.Orders
         }
 
 
-        public async Task<bool> AddUserOrder(inputOrderDTO order)
+        public async Task<string> OrderCreate(long price)
         {
-            try
-            {
-                bool isUserValid = await _puppyDb.UsersTb.AnyAsync(u => u.Id == order.User_Id);
-                var isProductValid = await _puppyDb.ProductsTb.FindAsync(order.Product_Id);
-                if (!isUserValid || isProductValid == null)
-                {
-                    return false;
-                }
-                var isUserhasOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o => o.User_Id == order.User_Id);
-                if (isUserhasOrder == null)
-                {
-                    _puppyDb.OrderTb.Add(new Order { User_Id = order.User_Id, orderItems = new List<OrderItem>() });
-                    _puppyDb.SaveChanges();
-                    isUserhasOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o => o.User_Id == order.User_Id);
-                }
-                var inOrderItemshasItem = await _puppyDb.OrderItemTb.SingleOrDefaultAsync(oi => oi.Product_Id == order.Product_Id && oi.Order_Id == isUserhasOrder.Id);
-                if (inOrderItemshasItem == null)
-                {
-                    OrderItem orderitem = new OrderItem();
-                    orderitem.Order_Id = isUserhasOrder.Id;
-                    orderitem.Product_Id = order.Product_Id;
-                    orderitem.Qty = order.Qty;
-                    orderitem.Total = orderitem.Qty * isProductValid.Price;
-                    _puppyDb.OrderItemTb.Add(orderitem);
-                    _puppyDb.SaveChanges();
-                    return true;
-                }
-                inOrderItemshasItem.Qty += order.Qty;
-                inOrderItemshasItem.Total = inOrderItemshasItem.Qty * isProductValid.Price;
-                _puppyDb.SaveChanges();
-                return true;
-            }catch(Exception ex)
+            Dictionary<string, object> input = new Dictionary<string, object>();
+            Random random = new Random();
+            string TrasactionId = random.Next(0, 1000).ToString();
+            input.Add("amount", Convert.ToDecimal(price) * 100);
+            input.Add("currency", "INR");
+            input.Add("receipt", TrasactionId);
+
+            string key = _Configuration["Razorpay:KeyId"];
+            string secret = _Configuration["Razorpay:KeySecret"];
+
+            RazorpayClient client = new RazorpayClient(key, secret);
+
+            Razorpay.Api.Order order = client.Order.Create(input);
+            var OrderId = order["id"].ToString();
+
+            return OrderId;
+        }
+
+
+        public bool Payment(RazorpayDTO razorpay)
+        {
+            if (
+                razorpay == null ||
+                razorpay.razorpay_payment_id == null ||
+                razorpay.razorpay_order_id == null ||
+                razorpay.razorpay_signature == null
+                )
             {
                 return false;
             }
-                
+            RazorpayClient client = new RazorpayClient(_Configuration["Razorpay:KeyId"], _Configuration["Razorpay:KeySecret"]);
+            Dictionary<string, string> attributes = new Dictionary<string, string>();
+            attributes.Add("razorpay_payment_id", razorpay.razorpay_payment_id);
+            attributes.Add("razorpay_order_id", razorpay.razorpay_order_id);
+            attributes.Add("razorpay_signature", razorpay.razorpay_signature);
+            Utils.verifyPaymentSignature(attributes);
+            return true;
         }
+
+
+
+        public async Task<bool> CreateOrder(inputOrderDTO userDetails)
+        {
+            try
+            {
+                var cartitems = await _puppyDb.CartTb.Include(c => c.cartItemDTOs).SingleOrDefaultAsync(c => c.UserId == userDetails.User_Id);
+                if ( cartitems == null )
+                {
+                    throw new Exception("User have no cart");
+                }
+                var isUserHaveOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o => o.User_Id == userDetails.User_Id);
+                if (isUserHaveOrder == null)
+                {
+                    await _puppyDb.OrderTb.AddAsync(new Models.Order { User_Id = userDetails.User_Id }); 
+                    await _puppyDb.SaveChangesAsync();
+                    isUserHaveOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o => o.User_Id == userDetails.User_Id);
+                }
+                var orderitemlist =cartitems.cartItemDTOs.Select(ci=> new OrderItem
+                {
+                    Order_Id = isUserHaveOrder.Id,
+                    Product_Id = ci.Product_Id,
+                    Qty=ci.Qty,
+                    Price=ci.product.Price,
+                    Total =ci.product.Price/ci.Qty,
+                    DelivaryAddress = userDetails.DelivaryAddress,
+                    OrderDate=DateTime.Now
+                }).ToList();
+                 await _puppyDb.OrderItemTb.AddRangeAsync(orderitemlist);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                 throw new Exception(ex.Message);
+            }
+        }
+
+
+
+
+
+
+
 
         public async Task<bool> RemoveAllorders(int userid)
         {

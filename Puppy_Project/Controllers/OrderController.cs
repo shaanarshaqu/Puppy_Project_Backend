@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Models.OrderDTO;
+using Puppy_Project.Models.RazorPay;
+using Puppy_Project.Secure;
 using Puppy_Project.Services.Orders;
 
 namespace Puppy_Project.Controllers
@@ -33,20 +35,79 @@ namespace Puppy_Project.Controllers
             
         }
 
-        [HttpPost("Add")]
+
+
+
+        [HttpPost("order-create")]
         [Authorize]
-        public async Task<IActionResult> CreateOrder(inputOrderDTO order)
+        public async Task<ActionResult> createOrder([FromBody] TakePriceDTO priceDto)
         {
             try
             {
-                bool isAdded = await _order.AddUserOrder(order);
-                return isAdded ? Ok(isAdded) : BadRequest();
-            }catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
+                if (priceDto.price <= 0)
+                {
+                    return BadRequest("enter a valid money ");
+                }
+                var orderId = await _order.OrderCreate(priceDto.price);
+                return Ok(orderId);
             }
-            
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+
         }
+
+
+        [HttpPost("payment")]
+        [Authorize]
+        public ActionResult Payment(RazorpayDTO razorpay)
+        {
+            try
+            {
+                if (razorpay == null)
+                {
+                    return BadRequest("razorpay details must not null here");
+                }
+                var con = _order.Payment(razorpay);
+                return Ok(con);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+
+        [HttpPost("place-Order")]
+        [Authorize]
+        public async Task<ActionResult> PlaceOrder(inputOrderDTO orderRequests)
+        {
+            try
+            {
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var Token = token.Split(' ')[1];
+                var UserId = TokenDecoder.DecodeToken(Token);
+                if (orderRequests == null || UserId != orderRequests.User_Id)
+                {
+                    return BadRequest();
+                }
+                var status = await _order.CreateOrder(orderRequests);
+                return Ok(status);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+
+
+
+
 
         [HttpDelete("CancelUserOrder/{id:int}")]
         [Authorize]

@@ -6,9 +6,6 @@ namespace Puppy_Project.Models.OrderDTO
     {
         [Required]
         public int User_Id { get; set; }
-        [Required]
-        public int Product_Id { get; set; }
-        [Required]
-        public int Qty { get; set; }
+        public string DelivaryAddress { get; set; }
     }
 }

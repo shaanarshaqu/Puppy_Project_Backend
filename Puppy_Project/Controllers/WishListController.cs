@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Puppy_Project.Models.WishListDTO;
+using Puppy_Project.Secure;
 using Puppy_Project.Services.WishLists;
 
 namespace Puppy_Project.Controllers
@@ -17,10 +18,17 @@ namespace Puppy_Project.Controllers
         }
 
 
-        [HttpGet("{id:int}")]
+        [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetWishListOfUser(int id)
+        public async Task<IActionResult> GetWishListOfUser()
         {
+            string Bearer_token = HttpContext.Request.Headers["Authorization"];
+            string token = Bearer_token.Split(' ')[1];
+            int id = TokenDecoder.DecodeToken(token);
+            if (id == -1)
+            {
+                return BadRequest();
+            }
             var list = await _wishList.ListUserWishList(id);
             return Ok(list);
         }
@@ -34,11 +42,18 @@ namespace Puppy_Project.Controllers
             return isAdded ? Ok(isAdded):BadRequest(isAdded);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> RemoveWishList(int id)
+        public async Task<IActionResult> RemoveWishList([FromBody] DeleteFromWishList wish)
         {
-            bool isDeleted = await _wishList.RemoveWishList(id);
+            string Bearer_token = HttpContext.Request.Headers["Authorization"];
+            string token = Bearer_token.Split(' ')[1];
+            int userid = TokenDecoder.DecodeToken(token);
+            if (userid == -1)
+            {
+                return BadRequest();
+            }
+            bool isDeleted = await _wishList.RemoveWishList(userid, wish.Product_Id);
             return isDeleted ? Ok(isDeleted):BadRequest(isDeleted);
         }
     }
