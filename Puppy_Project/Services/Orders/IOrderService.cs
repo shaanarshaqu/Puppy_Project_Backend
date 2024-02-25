@@ -6,6 +6,7 @@ namespace Puppy_Project.Services.Orders
     public interface IOrderService
     {
         Task<List<outOrderDTO>> ListUserOrder(int id);
+        Task<List<outOrderDTO>> AllOrders();
         Task<bool> RemoveAllorders(int userid);
         Task<int> TotalPurchase();
         Task<string> TotalRevenueGenerated();

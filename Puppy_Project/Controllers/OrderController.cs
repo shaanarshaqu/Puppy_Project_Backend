@@ -20,8 +20,8 @@ namespace Puppy_Project.Controllers
 
 
 
-        [HttpGet("{id:int}")]
-        [Authorize]
+        [HttpGet("User/{id:int}")]
+        [Authorize(Roles ="admin")]
         public async Task<IActionResult> ListUserOrder(int id)
         {
             try
@@ -30,9 +30,51 @@ namespace Puppy_Project.Controllers
                 return Ok(order_list);
             }catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500,ex.Message);
             }
             
+        }
+
+
+        [HttpGet("AllOrders")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> ListAllOrders()
+        {
+            try
+            {
+                var order_list = await _order.AllOrders();
+                return Ok(order_list);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
+
+
+        [HttpGet("UserOrder")]
+        [Authorize]
+        public async Task<IActionResult> GetAllOrder()
+        {
+            try
+            {
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var Token = token.Split(' ')[1];
+                var UserId = TokenDecoder.DecodeToken(Token);
+                if (UserId == -1)
+                {
+                    return BadRequest();
+                }
+                var order_list = await _order.ListUserOrder(UserId);
+                return Ok(order_list);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
 
@@ -66,6 +108,13 @@ namespace Puppy_Project.Controllers
         {
             try
             {
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var Token = token.Split(' ')[1];
+                var UserId = TokenDecoder.DecodeToken(Token);
+                if (UserId == -1)
+                {
+                    return BadRequest();
+                }
                 if (razorpay == null)
                 {
                     return BadRequest("razorpay details must not null here");
@@ -109,12 +158,19 @@ namespace Puppy_Project.Controllers
 
 
 
-        [HttpDelete("CancelUserOrder/{id:int}")]
+        [HttpDelete("CancelUserOrder")]
         [Authorize]
-        public async Task<IActionResult> DeleteOrder(int id)
+        public async Task<IActionResult> DeleteOrder()
         {
             try
             {
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var Token = token.Split(' ')[1];
+                var id = TokenDecoder.DecodeToken(Token);
+                if (id == -1)
+                {
+                    return BadRequest();
+                }
                 bool isDeleted = await _order.RemoveAllorders(id);
                 return isDeleted ? Ok(isDeleted) : BadRequest(isDeleted);
             }catch(Exception ex)

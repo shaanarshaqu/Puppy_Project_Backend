@@ -54,6 +54,41 @@ namespace Puppy_Project.Services.Orders
         }
 
 
+        public async Task<List<outOrderDTO>> AllOrders()
+        {
+            try
+            {
+                var order =await _puppyDb.UsersTb
+                    .Include(u => u.userorder)
+                        .ThenInclude(o => o.orderItems)
+                            .ThenInclude(oi => oi.product)
+                .ToListAsync();
+
+                if (order == null || order.Count == 0)
+                {
+                    return new List<outOrderDTO>();
+                }
+                var orderList = order.Select(u=>new outOrderDTO
+                {
+                    Id =u.userorder.orderItems.FirstOrDefault().Id,
+                    Product_Id = u.userorder.orderItems.FirstOrDefault().Product_Id,
+                    Qty = u.userorder.orderItems.FirstOrDefault().Qty,
+                    Img = $"{_Configuration["HostUrl:images"]}/Products/{u.userorder.orderItems.FirstOrDefault().product.Img}",
+                    Price = u.userorder.orderItems.FirstOrDefault().Price / u.userorder.orderItems.FirstOrDefault().Qty,
+                    Total = u.userorder.orderItems.FirstOrDefault().Total,
+                    User_Id = u.userorder.Id
+                }).ToList();
+                return orderList;
+
+            }
+            catch (Exception ex)
+            {
+                return new List<outOrderDTO>();
+            }
+
+        }
+
+
         public async Task<string> OrderCreate(long price)
         {
             Dictionary<string, object> input = new Dictionary<string, object>();
@@ -101,8 +136,13 @@ namespace Puppy_Project.Services.Orders
         {
             try
             {
-                var cartitems = await _puppyDb.CartTb.Include(c => c.cartItemDTOs).SingleOrDefaultAsync(c => c.UserId == userDetails.User_Id);
-                if ( cartitems == null )
+                var cartitems = await _puppyDb.UsersTb
+                    .Include(u => u.cartuser)
+                        .ThenInclude(c => c.cartItemDTOs)
+                            .ThenInclude(ci=>ci.product)
+                    .SingleOrDefaultAsync(u => u.Id == userDetails.User_Id);
+
+                if ( cartitems.cartuser == null )
                 {
                     throw new Exception("User have no cart");
                 }
@@ -113,7 +153,7 @@ namespace Puppy_Project.Services.Orders
                     await _puppyDb.SaveChangesAsync();
                     isUserHaveOrder = await _puppyDb.OrderTb.SingleOrDefaultAsync(o => o.User_Id == userDetails.User_Id);
                 }
-                var orderitemlist =cartitems.cartItemDTOs.Select(ci=> new OrderItem
+                var orderitemlist =cartitems.cartuser.cartItemDTOs.Select(ci=> new OrderItem
                 {
                     Order_Id = isUserHaveOrder.Id,
                     Product_Id = ci.Product_Id,
@@ -122,8 +162,9 @@ namespace Puppy_Project.Services.Orders
                     Total =ci.product.Price/ci.Qty,
                     DelivaryAddress = userDetails.DelivaryAddress,
                     OrderDate=DateTime.Now
-                }).ToList();
+                });
                  await _puppyDb.OrderItemTb.AddRangeAsync(orderitemlist);
+                await _puppyDb.SaveChangesAsync();
                 return true;
             }
             catch(Exception ex)
