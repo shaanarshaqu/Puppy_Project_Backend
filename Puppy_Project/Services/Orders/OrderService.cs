@@ -161,7 +161,7 @@ namespace Puppy_Project.Services.Orders
                     Price=ci.product.Price,
                     Total =ci.product.Price/ci.Qty,
                     DelivaryAddress = userDetails.DelivaryAddress,
-                    OrderDate=DateTime.Now
+                    OrderDate=DateTime.Now.Date
                 });
                  await _puppyDb.OrderItemTb.AddRangeAsync(orderitemlist);
                 await _puppyDb.SaveChangesAsync();
