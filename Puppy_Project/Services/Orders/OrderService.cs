@@ -39,8 +39,10 @@ namespace Puppy_Project.Services.Orders
                     Product_Id = oi.Product_Id,
                     Qty = oi.Qty,
                     Img = $"{_Configuration["HostUrl:images"]}/Products/{oi.product.Img}",
+                    Product_Name = oi.product.Name,
                     Price = oi.Total / oi.Qty,
                     Total = oi.Total,
+                    OrderDate = oi.OrderDate.Date,
                     User_Id = order.Id
                 }).ToList();
                 return orderList;
@@ -73,6 +75,7 @@ namespace Puppy_Project.Services.Orders
                     Id =u.userorder.orderItems.FirstOrDefault().Id,
                     Product_Id = u.userorder.orderItems.FirstOrDefault().Product_Id,
                     Qty = u.userorder.orderItems.FirstOrDefault().Qty,
+                    Product_Name=u.userorder.orderItems.FirstOrDefault().product.Name,
                     Img = $"{_Configuration["HostUrl:images"]}/Products/{u.userorder.orderItems.FirstOrDefault().product.Img}",
                     Price = u.userorder.orderItems.FirstOrDefault().Price / u.userorder.orderItems.FirstOrDefault().Qty,
                     Total = u.userorder.orderItems.FirstOrDefault().Total,
@@ -164,6 +167,8 @@ namespace Puppy_Project.Services.Orders
                     OrderDate=DateTime.Now.Date
                 });
                  await _puppyDb.OrderItemTb.AddRangeAsync(orderitemlist);
+                var itemtoclear = await _puppyDb.CartTb.SingleOrDefaultAsync(c=>c.UserId==userDetails.User_Id);
+                _puppyDb.CartTb.Remove(itemtoclear);
                 await _puppyDb.SaveChangesAsync();
                 return true;
             }

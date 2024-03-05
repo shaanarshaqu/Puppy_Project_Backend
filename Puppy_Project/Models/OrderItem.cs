@@ -13,5 +13,6 @@ namespace Puppy_Project.Models
         public int Total { get; set; }
         public string DelivaryAddress { get; set; }
         public DateTime OrderDate { get; set; } 
+        public string DeliveryStatus { get; set; }
     }
 }

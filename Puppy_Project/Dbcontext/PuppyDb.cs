@@ -58,6 +58,9 @@ namespace Puppy_Project.Dbcontext
                 .WithOne(u => u.userorder)
                 .HasForeignKey<Order>(o => o.User_Id);
             modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.DeliveryStatus)
+                .HasDefaultValue("NotDelivered");
+            modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.order)
                 .WithMany(o => o.orderItems)
                 .HasForeignKey(oi => oi.Order_Id);
