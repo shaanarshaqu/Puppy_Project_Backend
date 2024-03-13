@@ -34,9 +34,15 @@ namespace Puppy_Project.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsers()
         {
-            
+            try
+            {
                 var userslist = await _users.ListUsers();
                 return userslist != null ? Ok(userslist) : BadRequest("No Users Found");
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+                
             
         }
 
